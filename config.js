@@ -19,7 +19,7 @@ const CONFIG = {
         ],
         birthdayMessage: "Happy Birthday!",
         subMessage: "Wishing you a year full of joy, success, and endless smiles.",
-        musicUrl: "MyMusic.mp3" // Ensure this is uploaded to the same folder
+        musicUrl: "Blue.mp3" // Ensure this is uploaded to the same folder
     },
 
     // --- Flip Gallery (6-8 images) ---
