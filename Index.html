@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday!</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body, html { margin: 0; padding: 0; overflow-x: hidden; font-family: 'Poppins', sans-serif; background: #000; color: white; }
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Premium Gradient Text */
+        .text-gradient {
+            background: linear-gradient(to right, #fff, #ffd700, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-inner { transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
+        .card-inner.is-flipped { transform: rotateY(180deg); }
+        .card-front, .card-back { backface-visibility: hidden; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 1rem; }
+        .card-back { transform: rotateY(180deg); }
+
+        .reels-container { scroll-snap-type: y mandatory; overflow-y: scroll; height: 80vh; scrollbar-width: none; }
+        .reel-item { scroll-snap-align: start; height: 80vh; position: relative; }
+        
+        #intro-screen { position: fixed; inset: 0; z-index: 100; transition: transform 1s ease-in-out; }
+        .hidden { display: none !important; }
+        
+        /* Floating Balloons */
+        .balloon { position: absolute; bottom: -100px; opacity: 0.8; z-index: 5; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div id="intro-screen" class="flex flex-col items-center justify-center text-center p-6 bg-cover bg-center">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-xl"></div>
+        <div id="word-container" class="relative z-10 text-4xl font-light tracking-widest text-white leading-relaxed"></div>
+        <button onclick="startExperience()" class="relative z-10 px-10 py-4 bg-white text-black rounded-full font-bold tracking-tighter shadow-[0_0_20px_rgba(255,255,255,0.4)] hidden opacity-0 transition-all active:scale-95" id="start-btn"></button>
+    </div>
+
+    <div id="main-content" class="hidden opacity-0">
+        <div id="bg-slideshow" class="fixed inset-0 z-[-1] bg-cover bg-center transition-all duration-2000 blur-[3px] scale-110"></div>
+        
+        <button id="music-toggle" onclick="toggleMusic()" class="fixed top-5 right-5 z-50 glass w-12 h-12 rounded-full flex items-center justify-center border-white/20">🎵</button>
+        <audio id="bg-music" loop preload="auto"></audio>
+
+        <section class="h-screen flex flex-col items-center justify-center text-center p-6 relative overflow-hidden">
+            <h1 id="bday-title" class="text-7xl font-['Dancing_Script'] mb-4 text-gradient drop-shadow-lg"></h1>
+            <p id="bday-sub" class="text-white/70 font-light tracking-wide max-w-xs leading-loose"></p>
+            <div class="mt-20 animate-bounce opacity-40">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+            </div>
+        </section>
+
+        <section class="px-6 py-12 bg-black/40">
+            <h2 class="text-xs uppercase tracking-[0.3em] text-white/40 mb-8 text-center font-bold">The Gallery</h2>
+            <div id="gallery-grid" class="grid grid-cols-1 gap-8"></div>
+        </section>
+
+        <section class="px-6 py-12">
+            <h2 class="text-xs uppercase tracking-[0.3em] text-white/40 mb-8 text-center font-bold">Moments in Motion</h2>
+            <div id="reels-list" class="reels-container space-y-6 rounded-3xl"></div>
+        </section>
+
+        <footer class="py-20 text-center glass" id="final-note"></footer>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        // Start logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const intro = document.getElementById('intro-screen');
+            intro.style.backgroundImage = `url(${CONFIG.intro.backgroundImg})`;
+            
+            const words = CONFIG.intro.message.split('|');
+            let tl = gsap.timeline();
+            
+            words.forEach((w) => {
+                tl.to("#word-container", {
+                    duration: 1,
+                    text: w.trim(),
+                    opacity: 1,
+                    onStart: () => { document.getElementById('word-container').innerHTML = w; },
+                    yoyo: true,
+                    repeat: 1,
+                    repeatDelay: 1.2,
+                    ease: "power2.inOut"
+                });
+            });
+
+            tl.to("#start-btn", {
+                display: 'block',
+                opacity: 1,
+                duration: 1,
+                onStart: () => { document.getElementById('start-btn').innerText = CONFIG.intro.buttonText; }
+            });
+        });
+
+        function launchProfessionalConfetti() {
+            const duration = 5 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 200 };
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+
+                const particleCount = 50 * (timeLeft / duration);
+                confetti({...defaults, particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } });
+            }, 250);
+        }
+
+        function spawnBalloons() {
+            for(let i=0; i<15; i++) {
+                const b = document.createElement('div');
+                b.className = "balloon text-4xl";
+                b.innerHTML = i % 2 === 0 ? "🎈" : "✨";
+                b.style.left = Math.random() * 100 + "vw";
+                document.body.appendChild(b);
+                
+                gsap.to(b, {
+                    y: -window.innerHeight - 200,
+                    x: "+=" + (Math.random() * 100 - 50),
+                    rotation: Math.random() * 360,
+                    duration: 4 + Math.random() * 4,
+                    delay: Math.random() * 2,
+                    ease: "power1.out",
+                    onComplete: () => b.remove()
+                });
+            }
+        }
+
+        function startExperience() {
+            const music = document.getElementById('bg-music');
+            music.src = CONFIG.main.musicUrl;
+            music.play();
+
+            // Trigger Effects
+            launchProfessionalConfetti();
+            spawnBalloons();
+
+            gsap.to('#intro-screen', { 
+                y: '-100%', 
+                duration: 1.5, 
+                ease: "expo.inOut",
+                onComplete: () => {
+                    document.getElementById('intro-screen').classList.add('hidden');
+                    document.getElementById('main-content').classList.remove('hidden');
+                    gsap.to('#main-content', { opacity: 1, duration: 1 });
+                    initMainPage();
+                }
+            });
+        }
+
+        function initMainPage() {
+            // Background Slideshow
+            let bgIdx = 0;
+            const bgEl = document.getElementById('bg-slideshow');
+            setInterval(() => {
+                bgIdx = (bgIdx + 1) % CONFIG.main.backgroundImages.length;
+                gsap.to(bgEl, { opacity: 0, duration: 1, onComplete: () => {
+                    bgEl.style.backgroundImage = `url(${CONFIG.main.backgroundImages[bgIdx]})`;
+                    gsap.to(bgEl, { opacity: 1, duration: 1 });
+                }});
+            }, 5000);
+            bgEl.style.backgroundImage = `url(${CONFIG.main.backgroundImages[0]})`;
+
+            document.getElementById('bday-title').innerText = CONFIG.main.birthdayMessage;
+            document.getElementById('bday-sub').innerText = CONFIG.main.subMessage;
+            document.getElementById('final-note').innerText = CONFIG.finalMessage;
+
+            // Gallery (Single Column for Premium Mobile Look)
+            const grid = document.getElementById('gallery-grid');
+            CONFIG.gallery.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "h-[450px] relative w-full perspective-1000";
+                card.innerHTML = `
+                    <div class="card-inner w-full h-full relative" onclick="this.classList.toggle('is-flipped')">
+                        <div class="card-front overflow-hidden shadow-2xl border border-white/10">
+                            <img src="${item.image}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <div class="absolute bottom-6 left-6 text-white/80 font-bold tracking-widest text-xs uppercase">Tap to read ↺</div>
+                        </div>
+                        <div class="card-back glass flex flex-col items-center justify-center p-8 text-white text-center shadow-2xl">
+                            <p class="text-xl font-light leading-relaxed italic">"${item.note}"</p>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Reels
+            const reels = document.getElementById('reels-list');
+            CONFIG.videos.forEach(v => {
+                reels.innerHTML += `
+                    <div class="reel-item w-full rounded-3xl overflow-hidden shadow-2xl border border-white/5">
+                        <video src="${v}" class="w-full h-full object-cover" loop playsinline onclick="this.paused ? this.play() : this.pause()"></video>
+                        <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/20 via-transparent to-black/40"></div>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleMusic() {
+            const m = document.getElementById('bg-music');
+            m.paused ? m.play() : m.pause();
+        }
+    </script>
+</body>
+</html>
