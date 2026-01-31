@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bespoke Birthday Surprise</title>
+    <title>Birthday Surprise</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -13,11 +13,11 @@
     
     <style>
         :root { --gold: #FFD700; --pink: #FF69B4; --cyan: #00FFFF; }
-        body, html { margin: 0; padding: 0; background: #000; color: white; height: 100%; width: 100%; overflow-x: hidden; }
+        body, html { margin: 0; padding: 0; background: #000; color: white; height: 100%; width: 100%; overflow-x: hidden; scroll-behavior: smooth; }
         
         .float-obj { position: fixed; pointer-events: none; z-index: 10; opacity: 0.6; font-size: 32px; }
 
-        /* Background Layers - Direct Image Injection */
+        /* Stable Background Logic */
         .bg-layer {
             position: fixed; inset: 0; z-index: -1;
             background-size: cover; background-position: center;
@@ -25,7 +25,7 @@
             display: none;
         }
 
-        /* Intro Background - Top to Bottom Reveal */
+        /* Intro Background - Wipe Reveal */
         #intro-bg-layer {
             position: absolute; inset: 0;
             background-size: cover; background-position: center;
@@ -35,21 +35,19 @@
         }
         .reveal-bg { clip-path: inset(0 0 0 0) !important; }
 
-        /* Typewriter Neon Text with Black Outline */
+        /* Typewriter with High Contrast */
         #word-container {
             font-family: 'Playfair Display', serif; font-weight: 900; font-size: 2.25rem;
             background: linear-gradient(to right, var(--pink), var(--gold), var(--cyan));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            /* Black Outline for Contrast */
-            -webkit-text-stroke: 1px black; 
-            text-shadow: 0 0 10px rgba(255, 105, 180, 0.5), 2px 2px 5px #000;
+            -webkit-text-stroke: 1.5px black;
+            text-shadow: 0 0 15px var(--pink), 2px 2px 4px #000;
             min-height: 120px; display: flex; align-items: center; justify-content: center;
         }
 
-        /* Luxe Button */
-        .btn-luxe { position: relative; padding: 20px 50px; background: #000; color: #fff; font-weight: 800; border-radius: 50px; z-index: 1; border: none; }
         .btn-luxe-wrap { padding: 3px; border-radius: 50px; background: linear-gradient(45deg, var(--pink), var(--cyan), var(--gold), var(--pink)); background-size: 300%; animation: borderAnim 4s linear infinite; }
         @keyframes borderAnim { 0% { background-position: 0%; } 100% { background-position: 300%; } }
+        .btn-luxe { position: relative; padding: 20px 50px; background: #000; color: #fff; font-weight: 800; border-radius: 50px; z-index: 1; border: none; }
 
         /* 3D Cards */
         .card-inner { transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
@@ -57,7 +55,12 @@
         .card-front, .card-back { backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2.5rem; overflow: hidden; }
         .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700); display: flex; align-items: center; justify-content: center; padding: 2.5rem; border: 2px solid white; }
 
-        .reels-container { scroll-snap-type: y mandatory; overflow-y: scroll; height: 80vh; scrollbar-width: none; }
+        /* Reels with Scroll Release */
+        .reels-container { 
+            scroll-snap-type: y proximity; 
+            overflow-y: visible; 
+            margin-bottom: 50px;
+        }
         .reel-item { scroll-snap-align: center; height: 75vh; margin-bottom: 30px; }
     </style>
 </head>
@@ -78,23 +81,30 @@
 
     <div id="main-content" class="hidden opacity-0 h-full w-full overflow-y-auto">
         <div id="main-decor" class="fixed inset-0 pointer-events-none z-0"></div>
-        <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-14 h-14 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-md">🎵</button>
+        
+        <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-14 h-14 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-md shadow-2xl">🎵</button>
         <audio id="bg-music" loop playsinline></audio>
 
-        <div class="relative z-10 w-full">
+        <div class="relative z-10 w-full" id="content-scroller">
             <section class="h-screen flex flex-col items-center justify-center text-center p-6">
                 <h1 id="bday-title" class="text-7xl mb-4" style="font-family:'Dancing Script'; color:var(--gold);"></h1>
                 <p id="bday-sub" class="text-white/60 tracking-[0.5em] uppercase text-[9px] font-bold"></p>
             </section>
+            
             <section class="px-6 py-10" style="perspective:1200px;"><div id="gallery-grid" class="flex flex-col gap-12"></div></section>
+            
             <section class="px-6 py-10 reels-container" id="reels-list"></section>
-            <footer class="py-24 px-10 text-center bg-black/60 border-t border-white/10"><p id="final-note" class="italic text-white/50"></p></footer>
+            
+            <footer class="py-32 px-10 text-center bg-black/80 border-t border-white/10 mt-20">
+                <p id="final-note" class="text-xl italic font-['Playfair_Display'] text-white/70"></p>
+                <div class="mt-8 text-[8px] uppercase tracking-widest opacity-30">End of Surprise</div>
+            </footer>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script>
-        // Magic Touch on Main Page
+        // Magic Touch Confetti
         document.getElementById('body-area').addEventListener('touchstart', (e) => {
             if (e.target.closest('.card-inner') || e.target.closest('video') || e.target.closest('button')) return;
             confetti({ particleCount: 15, spread: 40, origin: { x: e.touches[0].clientX/window.innerWidth, y: e.touches[0].clientY/window.innerHeight }, colors: ['#FFD700', '#FF69B4'] });
@@ -136,7 +146,6 @@
                 const music = document.getElementById('bg-music');
                 music.src = CONFIG.main.musicUrl; music.play();
                 
-                // Set and show main background using Intro's logic
                 const mainBg = document.getElementById('main-bg');
                 mainBg.style.backgroundImage = `url(${CONFIG.main.backgroundImg})`;
                 mainBg.style.display = 'block';
@@ -163,10 +172,10 @@
                 const card = document.createElement('div');
                 card.className = "h-[450px] w-full";
                 card.innerHTML = `<div class="card-inner" onclick="this.classList.toggle('is-flipped'); if(navigator.vibrate) navigator.vibrate(30);">
-                    <div class="card-front"><img src="${item.image}" class="w-full h-full object-cover">
+                    <div class="card-front shadow-2xl"><img src="${item.image}" class="w-full h-full object-cover">
                         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-[9px] font-bold text-center">Tap to Reveal Surprise ↺</div>
                     </div>
-                    <div class="card-back"><p class="text-2xl font-['Playfair_Display'] italic text-center">"${item.note}"</p></div>
+                    <div class="card-back shadow-2xl"><p class="text-2xl font-['Playfair_Display'] italic text-center">"${item.note}"</p></div>
                 </div>`;
                 grid.appendChild(card);
             });
@@ -174,7 +183,7 @@
             const reels = document.getElementById('reels-list');
             CONFIG.videos.forEach(v => {
                 const div = document.createElement('div');
-                div.className = "reel-item w-full rounded-[2.5rem] overflow-hidden bg-black mb-10 shadow-2xl border border-white/10";
+                div.className = "reel-item w-full rounded-[2.5rem] overflow-hidden bg-black shadow-2xl border border-white/10 relative";
                 div.innerHTML = `<video src="${v}" class="w-full h-full object-cover bday-video" loop playsinline muted></video>
                                 <div class="absolute top-6 left-6 bg-black/40 px-4 py-2 rounded-full text-[8px] font-bold">SOUND 🔊</div>`;
                 div.onclick = () => {
@@ -191,3 +200,4 @@
     </script>
 </body>
 </html>
+
