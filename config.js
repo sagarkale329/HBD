@@ -5,7 +5,7 @@ const CONFIG = {
         buttonText: "Open My Wish"
     },
     main: {
-        backgroundImg: "MyImage1.jpg", 
+        backgroundImg: "MyImage1.jpg", // Single static image for stability
         birthdayMessage: "Happy Birthday!",
         subMessage: "Wishing you a year full of joy, success, and endless smiles.",
         musicUrl: "Blue.mp3" 
