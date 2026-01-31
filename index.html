@@ -14,24 +14,28 @@
     <style>
         body, html { margin: 0; padding: 0; background: #000; color: white; overflow-x: hidden; height: 100%; width: 100%; }
         
-        /* Floating Objects - Forced Crisp & Faded */
+        /* THE ULTIMATE FIX: The Super-Layer */
+        #super-layer {
+            position: fixed; inset: 0; z-index: 999; /* Higher than everything */
+            pointer-events: none;
+        }
+
         .float-obj { 
-            position: fixed; 
-            pointer-events: none; 
-            z-index: 150; 
+            position: absolute; 
             opacity: 0.6; 
             font-size: 30px; 
             filter: none !important; 
             -webkit-filter: none !important;
+            will-change: transform; /* Forces GPU to keep it sharp */
         }
 
         /* Loading Screen */
         #loading-screen {
-            position: fixed; inset: 0; z-index: 999; background: #000;
+            position: fixed; inset: 0; z-index: 1000; background: #000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* Intro Screen - Working Reveal Logic */
+        /* Intro Screen */
         #intro-screen { 
             position: fixed; inset: 0; z-index: 100; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
@@ -46,17 +50,13 @@
             background: rgba(0,0,0,0.3); z-index: 1;
         }
 
-        /* Main Content - Reverted to your working stable version */
+        /* Main Content */
         #main-content { 
             display: none; opacity: 0; width: 100%; height: 100vh; overflow-y: auto; 
             background-size: cover; background-position: center; background-attachment: fixed;
             transition: background-image 2s ease-in-out;
         }
-        /* Simple dark overlay for readability */
-        .main-overlay {
-            position: fixed; inset: 0; 
-            background: rgba(0,0,0,0.4); z-index: -1;
-        }
+        .main-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: -1; }
 
         /* Stylish Text */
         #word-container {
@@ -80,7 +80,7 @@
             backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2rem; overflow: hidden; 
             border: 4px solid rgba(255, 255, 255, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700); display: flex; align-items: center; justify-content: center; padding: 2.5rem; border: 4px solid white; }
+        .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700); display: flex; align-items: center; justify-content: center; padding: 2rem; border: 4px solid white; }
 
         .reel-item { scroll-snap-align: center; height: 75vh; margin-bottom: 30px; border: 4px solid rgba(255,255,255,0.1); border-radius: 2.5rem; overflow: hidden; position: relative; }
     </style>
@@ -88,6 +88,8 @@
 <body id="body-area">
 
     <script>gsap.registerPlugin(TextPlugin);</script>
+
+    <div id="super-layer"></div>
 
     <div id="loading-screen">
         <div class="text-white font-bold tracking-widest animate-pulse">LOADING MEMORIES...</div>
@@ -98,7 +100,6 @@
 
     <div id="intro-screen">
         <div class="intro-blur"></div>
-        <div id="intro-decor" class="absolute inset-0 z-0"></div>
         <div id="word-container" class="relative z-10 px-8"></div>
         <div class="btn-luxe-wrap relative z-[110] mt-10 scale-0 opacity-0" id="btn-container">
             <button id="start-btn" class="btn-luxe">Open My Wish</button>
@@ -107,8 +108,6 @@
 
     <div id="main-content">
         <div class="main-overlay"></div>
-        <div id="main-decor" class="fixed inset-0 pointer-events-none z-0"></div>
-        
         <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-12 h-12 rounded-full border border-white/30 backdrop-blur-md">🎵</button>
         <audio id="bg-music" loop playsinline></audio>
 
@@ -127,15 +126,18 @@
 
     <script src="config.js"></script>
     <script>
-        // Magic Touch Confetti
+        // Confetti logic remains the same
         document.getElementById('body-area').addEventListener('touchstart', (e) => {
             if (e.target.closest('.card-inner') || e.target.closest('video') || e.target.closest('button')) return;
             confetti({ particleCount: 15, spread: 40, origin: { x: e.touches[0].clientX/window.innerWidth, y: e.touches[0].clientY/window.innerHeight } });
         });
 
-        function createFlow(id, icons) {
-            const container = document.getElementById(id);
+        function createFlow(icons) {
+            const container = document.getElementById('super-layer');
             const dirs = ['top', 'bottom', 'left', 'right'];
+            // We empty the layer each time we switch phases to keep it clean
+            container.innerHTML = '';
+            
             for (let i = 0; i < 24; i++) {
                 const el = document.createElement('div');
                 el.className = 'float-obj';
@@ -171,7 +173,7 @@
         });
 
         function startSurprise() {
-            createFlow('intro-decor', ['☀️', '🌙', '🌻', '🌸', '🌷', '✨', '☁️']);
+            createFlow(['☀️', '🌙', '🌻', '🌸', '🌷', '✨', '☁️']);
             const intro = document.getElementById('intro-screen');
             intro.style.backgroundImage = `url(${CONFIG.intro.backgroundImg})`;
             setTimeout(() => intro.classList.add('reveal-bg'), 300);
@@ -193,7 +195,9 @@
                 main.style.backgroundImage = `url(${CONFIG.mainPage.backgroundImages[0]})`;
 
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-                createFlow('main-decor', ['🎂', '🎈', '😊', '⭐', '✉️', '🎉', '🌻', '🌙', '🌷']);
+                
+                // Switching icons for Main phase
+                createFlow(['🎂', '🎈', '😊', '⭐', '✉️', '🎉', '🌻', '🌙', '🌷']);
                 
                 gsap.to("#intro-screen", { y: "-100%", duration: 1.2, ease: "expo.inOut", onComplete: () => {
                     document.getElementById('intro-screen').style.display = 'none';
@@ -224,7 +228,7 @@
             CONFIG.gallery.forEach(item => {
                 const card = document.createElement('div');
                 card.className = "h-[450px] w-full";
-                card.innerHTML = `<div class="card-inner" onclick="this.classList.toggle('is-flipped'); if(navigator.vibrate) navigator.vibrate(30);">
+                card.innerHTML = `<div class="card-inner" onclick="this.classList.toggle('is-flipped');">
                     <div class="card-front"><img src="${item.image}" class="w-full h-full object-cover">
                         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-[9px] font-bold text-center">Tap to Reveal Surprise ↺</div>
                     </div>
@@ -251,5 +255,4 @@
         }
     </script>
 </body>
-    </html>
-    
+</html>
