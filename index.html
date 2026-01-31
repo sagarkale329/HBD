@@ -12,16 +12,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@300;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        :root { --gold: #FFD700; --soft-pink: #FF69B4; }
-        body, html { margin: 0; padding: 0; overflow-x: hidden; font-family: 'Inter', sans-serif; background: #050505; color: white; scroll-behavior: smooth; }
+        :root { --gold: #FFD700; }
+        body, html { margin: 0; padding: 0; overflow-x: hidden; font-family: 'Inter', sans-serif; background: #000; color: white; }
         
-        /* Premium Background Blur Settings */
-        .blur-premium { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        /* Premium Background Blur */
         .blur-light { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        .blur-premium { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 
-        /* Stylish Animated Gradient Title */
         .premium-text {
-            background: linear-gradient(45deg, #fff, var(--gold), #fff, var(--soft-pink));
+            background: linear-gradient(45deg, #fff, var(--gold), #fff, #FF69B4);
             background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -29,120 +28,91 @@
             font-family: 'Playfair Display', serif;
         }
 
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        /* 3D Flip Card Enhancements */
-        .perspective-1000 { perspective: 1200px; }
-        .card-inner { 
-            transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1); 
-            transform-style: preserve-3d; 
-            position: relative; width: 100%; height: 100%; 
-        }
+        .card-inner { transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        .card-front, .card-back { 
-            backface-visibility: hidden; position: absolute; top: 0; left: 0; 
-            width: 100%; height: 100%; border-radius: 2rem; overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .card-back { transform: rotateY(180deg); background: rgba(20, 20, 20, 0.95); }
+        .card-front, .card-back { backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2rem; overflow: hidden; }
+        .card-back { transform: rotateY(180deg); background: rgba(15, 15, 15, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); }
 
-        /* Instagram Reel Snap */
-        .reels-container { 
-            scroll-snap-type: y mandatory; overflow-y: scroll; height: 85vh; 
-            scrollbar-width: none; border-radius: 2rem;
-        }
-        .reels-container::-webkit-scrollbar { display: none; }
-        .reel-item { scroll-snap-align: start; height: 85vh; position: relative; margin-bottom: 30px; }
+        .reels-container { scroll-snap-type: y mandatory; overflow-y: scroll; height: 80vh; scrollbar-width: none; border-radius: 2rem; }
+        .reel-item { scroll-snap-align: start; height: 80vh; position: relative; margin-bottom: 20px; }
 
-        /* Glowing Button */
-        .btn-glow {
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-        .btn-glow:active { transform: scale(0.9) rotate(-2deg); }
-
-        #intro-screen { 
-            position: fixed; inset: 0; z-index: 100; display: flex; 
-            flex-direction: column; align-items: center; justify-content: center; 
-            background-size: cover; background-position: center; 
+        /* THE FIX: Force Button to the Front */
+        #start-btn { 
+            position: relative; 
+            z-index: 999 !important; 
+            cursor: pointer;
+            pointer-events: auto !important;
         }
     </style>
 </head>
 <body>
 
-    <div id="intro-screen">
-        <div class="absolute inset-0 bg-black/40 blur-light"></div>
-        <div id="word-container" class="relative z-10 text-4xl italic font-['Playfair_Display'] text-white px-10 text-center drop-shadow-2xl"></div>
-        <button onclick="startExperience()" id="start-btn" class="relative z-50 mt-12 px-12 py-5 bg-white text-black rounded-full font-bold tracking-widest uppercase text-xs btn-glow scale-0 transition-all" style="display: none;"></button>
+    <div id="intro-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-cover bg-center">
+        <div class="absolute inset-0 bg-black/30 blur-light"></div>
+        <div id="word-container" class="relative z-10 text-4xl italic font-['Playfair_Display'] text-white px-10 text-center drop-shadow-2xl h-24 flex items-center justify-center"></div>
+        
+        <button id="start-btn" class="mt-12 px-12 py-5 bg-white text-black rounded-full font-bold tracking-widest uppercase text-[10px] shadow-[0_20px_50px_rgba(255,255,255,0.2)] scale-0 transition-transform active:scale-90 opacity-0">
+            Open My Wish
+        </button>
     </div>
 
     <div id="main-content" class="hidden opacity-0">
-        <div class="fixed inset-0 pointer-events-none z-10 overflow-hidden" id="sparkle-container"></div>
-        
         <div id="bg-slideshow" class="fixed inset-0 z-[-1] bg-cover bg-center transition-all duration-2000 blur-light scale-105"></div>
         
-        <button id="music-toggle" onclick="toggleMusic()" class="fixed top-6 right-6 z-50 blur-premium bg-white/10 w-14 h-14 rounded-full flex items-center justify-center border border-white/20 shadow-2xl">🎵</button>
+        <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/10 w-14 h-14 rounded-full flex items-center justify-center border border-white/20 blur-premium shadow-2xl">🎵</button>
         <audio id="bg-music" loop playsinline></audio>
 
         <section class="h-screen flex flex-col items-center justify-center text-center p-6">
-            <h1 id="bday-title" class="text-7xl mb-4 premium-text drop-shadow-2xl"></h1>
-            <p id="bday-sub" class="text-white/60 font-light tracking-[0.2em] uppercase text-[10px] max-w-xs leading-loose"></p>
-            <div class="mt-24 animate-bounce opacity-30">
-                <div class="w-[1px] h-16 bg-gradient-to-b from-white to-transparent mx-auto"></div>
-            </div>
+            <h1 id="bday-title" class="text-6xl mb-4 premium-text"></h1>
+            <p id="bday-sub" class="text-white/50 tracking-[0.3em] uppercase text-[9px] max-w-xs"></p>
+            <div class="mt-20 animate-bounce opacity-20"><div class="w-[1px] h-12 bg-white mx-auto"></div></div>
         </section>
 
-        <section class="px-6 py-20 relative z-20">
-            <h2 class="text-[10px] uppercase tracking-[0.5em] text-gold/60 mb-12 text-center font-bold">Chronicles of Joy</h2>
-            <div id="gallery-grid" class="flex flex-col gap-12"></div>
+        <section class="px-6 py-10">
+            <h2 class="text-[9px] uppercase tracking-[0.4em] text-white/40 mb-10 text-center">Memory Gallery</h2>
+            <div id="gallery-grid" class="flex flex-col gap-10"></div>
         </section>
 
-        <section class="px-6 py-20 relative z-20">
-            <h2 class="text-[10px] uppercase tracking-[0.5em] text-gold/60 mb-12 text-center font-bold">Video Tributes</h2>
+        <section class="px-6 py-10">
+            <h2 class="text-[9px] uppercase tracking-[0.4em] text-white/40 mb-10 text-center">Video Reels</h2>
             <div id="reels-list" class="reels-container"></div>
         </section>
 
-        <footer class="py-32 px-10 text-center blur-premium bg-white/5 mt-20 border-t border-white/10">
-            <p id="final-note" class="text-xl font-['Playfair_Display'] italic text-white/80"></p>
-            <div class="mt-8 text-[9px] uppercase tracking-[0.4em] text-white/30">End of Chapter</div>
+        <footer class="py-24 px-10 text-center border-t border-white/5 mt-10">
+            <p id="final-note" class="text-lg italic font-['Playfair_Display'] text-white/70"></p>
         </footer>
     </div>
 
     <script src="config.js"></script>
     <script>
-        gsap.registerPlugin(ScrollTrigger);
-
-        // --- Intro Logic ---
+        // --- Intro Sequence ---
         document.addEventListener('DOMContentLoaded', () => {
             const intro = document.getElementById('intro-screen');
-            const startBtn = document.getElementById('start-btn');
+            const btn = document.getElementById('start-btn');
+            const wordBox = document.getElementById('word-container');
+
             intro.style.backgroundImage = `url(${CONFIG.intro.backgroundImg})`;
-            startBtn.innerText = CONFIG.intro.buttonText;
+            btn.innerText = CONFIG.intro.buttonText;
 
             const words = CONFIG.intro.message.split('|');
             let tl = gsap.timeline();
 
             words.forEach((word) => {
-                tl.to("#word-container", {
-                    duration: 0.9,
-                    opacity: 1,
-                    scale: 1.1,
-                    onStart: () => { document.getElementById('word-container').innerHTML = word.trim(); },
-                    ease: "power2.out"
-                }).to("#word-container", {
-                    duration: 0.7,
-                    opacity: 0,
-                    scale: 0.9,
-                    delay: 1.3,
-                    ease: "power2.in"
-                });
+                tl.to(wordBox, { duration: 0.8, opacity: 1, onStart: () => { wordBox.innerHTML = word.trim(); }, ease: "power2.out" })
+                  .to(wordBox, { duration: 0.8, opacity: 0, delay: 1.2, ease: "power2.in" });
             });
 
-            tl.to("#start-btn", { display: "block", scale: 1, duration: 0.8, ease: "back.out(1.7)" });
+            // Reveal Button
+            tl.to(btn, { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.7)" });
+
+            // ADD CLICK EVENT MANUALLY FOR BETTER MOBILE SUPPORT
+            btn.addEventListener('click', startExperience);
+            btn.addEventListener('touchstart', (e) => { 
+                e.preventDefault(); 
+                startExperience(); 
+            }, {passive: false});
         });
 
         function startExperience() {
@@ -150,27 +120,20 @@
             music.src = CONFIG.main.musicUrl;
             music.play().catch(() => {});
 
-            // Premium Confetti Burst
-            const scalar = 2;
-            const triangle = confetti.shapeFromPath({ path: 'M0 10 L5 0 L10 10z' });
-            confetti({ shapes: [triangle], particleCount: 40, spread: 70, origin: { y: 0.6 }, colors: ['#FFD700', '#FFFFFF'] });
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#FFD700', '#FFFFFF'] });
 
             gsap.to("#intro-screen", {
-                y: "-100%", duration: 1.5, ease: "expo.inOut",
+                y: "-100%", duration: 1.2, ease: "expo.inOut",
                 onComplete: () => {
                     document.getElementById('intro-screen').style.display = 'none';
                     document.getElementById('main-content').classList.remove('hidden');
-                    gsap.to("#main-content", { opacity: 1, duration: 1.2 });
+                    gsap.to("#main-content", { opacity: 1, duration: 1 });
                     initMainPage();
                 }
             });
         }
 
         function initMainPage() {
-            // Hero Animation
-            gsap.from("#bday-title", { y: 50, opacity: 0, duration: 1.5, delay: 0.5 });
-            
-            // Slideshow Logic
             const bgEl = document.getElementById('bg-slideshow');
             let bgIdx = 0;
             bgEl.style.backgroundImage = `url(${CONFIG.main.backgroundImages[0]})`;
@@ -186,41 +149,32 @@
             document.getElementById('bday-sub').innerText = CONFIG.main.subMessage;
             document.getElementById('final-note').innerText = CONFIG.finalMessage;
 
-            // Gallery with Scroll Animations
             const grid = document.getElementById('gallery-grid');
             CONFIG.gallery.forEach((item, i) => {
                 const card = document.createElement('div');
-                card.className = "h-[480px] w-full perspective-1000 gallery-item";
+                card.className = "h-[450px] w-full perspective-1000";
                 card.innerHTML = `
                     <div class="card-inner" onclick="this.classList.toggle('is-flipped')">
-                        <div class="card-front shadow-2xl">
-                            <img src="${item.image}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                            <div class="absolute bottom-8 left-8">
-                                <span class="text-[9px] tracking-[0.3em] text-white/50 block mb-2 uppercase">Memory ${i+1}</span>
-                                <span class="text-white text-xs font-bold border-b border-gold pb-1">VIEW NOTE ↺</span>
-                            </div>
-                        </div>
-                        <div class="card-back blur-premium flex items-center justify-center p-10 text-center">
-                            <p class="text-xl font-['Playfair_Display'] italic leading-relaxed text-gold">"${item.note}"</p>
+                        <div class="card-front"><img src="${item.image}" class="w-full h-full object-cover"></div>
+                        <div class="card-back flex items-center justify-center p-10 text-center">
+                            <p class="text-xl font-['Playfair_Display'] italic text-gold">"${item.note}"</p>
                         </div>
                     </div>
                 `;
                 grid.appendChild(card);
-                gsap.from(card, { scrollTrigger: card, y: 100, opacity: 0, duration: 1, ease: "power3.out" });
             });
 
-            // Video Reels with Snap
             const reels = document.getElementById('reels-list');
             CONFIG.videos.forEach(v => {
-                const item = document.createElement('div');
-                item.className = "reel-item w-full rounded-[2.5rem] overflow-hidden bg-zinc-900 shadow-2xl border border-white/10";
-                item.innerHTML = `
-                    <video src="${v}" class="w-full h-full object-cover" loop playsinline muted onclick="this.muted = !this.muted; this.play();"></video>
-                    <div class="absolute top-6 left-6 pointer-events-none blur-premium bg-black/20 px-4 py-2 rounded-full text-[9px] tracking-widest uppercase">Tap for Sound</div>
+                reels.innerHTML += `
+                    <div class="reel-item w-full rounded-[2rem] overflow-hidden bg-zinc-900 shadow-2xl">
+                        <video src="${v}" class="w-full h-full object-cover" loop playsinline muted onclick="this.muted = !this.muted; this.play();"></video>
+                        <div class="absolute top-6 left-6 blur-premium bg-black/20 px-4 py-2 rounded-full text-[8px] tracking-[0.2em] uppercase">Tap for Sound</div>
+                    </div>
                 `;
-                reels.appendChild(item);
             });
+
+            document.getElementById('music-toggle').addEventListener('click', toggleMusic);
         }
 
         function toggleMusic() {
