@@ -9,7 +9,7 @@ const CONFIG = {
     // --- Main Page Slideshow ---
     mainPage: {
         backgroundImages: [
-            "MyImage1.jpg",
+            "slide1.jpg",
             "MyImage2.jpg",
             "MyImage3.jpg",
             "MyImage4.jpg",
