@@ -1,7 +1,7 @@
 const CONFIG = {
     // --- Intro Screen ---
     intro: {
-        backgroundImg: "MyImage10.jpg", 
+        backgroundImg: "bg.png", 
         message: "A special message | for a special person | is just a click away | Happy Birthday! | Let's celebrate!", 
         buttonText: "Open My Wish"
     },
