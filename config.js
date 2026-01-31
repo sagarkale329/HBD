@@ -8,7 +8,8 @@ const CONFIG = {
 
     // --- Main Page ---
     mainPage: {
-        backgroundImg: "MyImage1.jpg", 
+        // Using MyImage10.jpg here as requested to match the working Intro
+        backgroundImg: "MyImage10.jpg", 
         birthdayMessage: "Happy Birthday!",
         subMessage: "Wishing you a year full of joy, success, and endless smiles.",
         musicUrl: "Blue.mp3" 
@@ -25,6 +26,12 @@ const CONFIG = {
         { image: "MyImage7.jpg", note: "This one is my favorite photo!" },
         { image: "MyImage8.jpg", note: "Ending the gallery with a smile." }
     ],
-    videos: ["MyVideo4.mp4"],
+    // 4 Slots using the same video file
+    videos: [
+        "MyVideo4.mp4",
+        "MyVideo4.mp4",
+        "MyVideo4.mp4",
+        "MyVideo4.mp4"
+    ],
     finalMessage: "Made with ❤️ just for you. Have the best day ever!"
 };
