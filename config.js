@@ -1,23 +1,25 @@
 const CONFIG = {
+    // --- Intro Screen ---
     intro: {
         backgroundImg: "MyImage10.jpg", 
         message: "A special message | for a special person | is just a click away | Happy Birthday! | Let's celebrate!", 
         buttonText: "Open My Wish"
     },
+
+    // --- Hardcoded Main Backgrounds ---
     main: {
-        // Simple list of backgrounds for the safe-layer engine
-        backgroundImages: [
-            "MyImage1.jpg",
-            "MyImage2.jpg",
-            "MyImage3.jpg",
-            "MyImage4.jpg",
-            "MyImage5.jpg",
-            "MyImage11.jpg"
-        ],
+        bg1: "MyImage1.jpg",
+        bg2: "MyImage2.jpg",
+        bg3: "MyImage3.jpg",
+        bg4: "MyImage4.jpg",
+        bg5: "MyImage5.jpg",
+        bg6: "MyImage11.jpg",
         birthdayMessage: "Happy Birthday!",
         subMessage: "Wishing you a year full of joy, success, and endless smiles.",
         musicUrl: "Blue.mp3" 
     },
+
+    // --- Gallery & Videos ---
     gallery: [
         { image: "MyImage1.jpg", note: "Add a personalized memory message here!" },
         { image: "MyImage2.jpg", note: "You can mention a specific date or event." },
@@ -28,10 +30,6 @@ const CONFIG = {
         { image: "MyImage7.jpg", note: "This one is my favorite photo!" },
         { image: "MyImage8.jpg", note: "Ending the gallery with a smile." }
     ],
-    videos: [
-        "MyVideo4.mp4",
-        "MyVideo4.mp4",
-        "MyVideo4.mp4"
-    ],
+    videos: ["MyVideo4.mp4", "MyVideo4.mp4", "MyVideo4.mp4"],
     finalMessage: "Made with ❤️ just for you. Have the best day ever!"
 };
