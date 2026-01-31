@@ -1,15 +1,20 @@
 const CONFIG = {
+    // --- Intro Screen ---
     intro: {
         backgroundImg: "MyImage10.jpg", 
         message: "A special message | for a special person | is just a click away | Happy Birthday! | Let's celebrate!", 
         buttonText: "Open My Wish"
     },
-    main: {
-        backgroundImg: "MyImage1.jpg", // Single static image for stability
+
+    // --- Main Page (Single Background Property) ---
+    mainPage: {
+        backgroundImg: "MyImage1.jpg", // Dedicated property for stability
         birthdayMessage: "Happy Birthday!",
         subMessage: "Wishing you a year full of joy, success, and endless smiles.",
         musicUrl: "Blue.mp3" 
     },
+
+    // --- Content ---
     gallery: [
         { image: "MyImage1.jpg", note: "Add a personalized memory message here!" },
         { image: "MyImage2.jpg", note: "You can mention a specific date or event." },
