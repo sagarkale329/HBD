@@ -14,15 +14,16 @@
     <style>
         body, html { margin: 0; padding: 0; background: #000; color: white; overflow-x: hidden; height: 100%; width: 100%; }
         
-        /* Faded Floating Objects - STRICT NO BLUR */
+        /* THE FIX: Forced Crispness for Floating Objects */
         .float-obj { 
             position: fixed; 
             pointer-events: none; 
-            z-index: 80; 
+            z-index: 150; 
             opacity: 0.6; 
             font-size: 32px; 
-            filter: none !important; 
-            -webkit-filter: none !important;
+            filter: blur(0px) !important; 
+            -webkit-filter: blur(0px) !important;
+            transform: translateZ(0); /* Hardware acceleration without blur */
         }
 
         /* Loading Screen */
@@ -31,37 +32,31 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
+        /* THE FIX: Static Blurred Background Layers */
+        .bg-layer-visual {
+            position: fixed; inset: 0; z-index: -10;
+            background-size: cover; background-position: center;
+            filter: blur(8px) brightness(0.4);
+            -webkit-filter: blur(8px) brightness(0.4);
+            transition: background-image 2s ease-in-out;
+            display: none;
+        }
+
         /* Intro Screen - Reveal Logic */
         #intro-screen { 
             position: fixed; inset: 0; z-index: 100; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            background-size: cover; background-position: center; 
             clip-path: inset(0 0 100% 0);
             transition: clip-path 3s cubic-bezier(0.19, 1, 0.22, 1);
         }
         .reveal-bg { clip-path: inset(0 0 0 0) !important; }
 
-        .intro-blur { 
-            position: absolute; inset: 0; 
-            backdrop-filter: blur(6px) brightness(0.6); -webkit-backdrop-filter: blur(6px) brightness(0.6); 
-            background: rgba(0,0,0,0.3); z-index: 1;
-        }
-
-        /* Main Content - Blurred & Faded Background */
-        #main-content { 
-            display: none; opacity: 0; width: 100%; height: 100vh; overflow-y: auto; 
-            background-size: cover; background-position: center; background-attachment: fixed;
-            transition: background-image 2s ease-in-out;
-        }
-        
-        /* THE FIX: Dedicated Main Background Blur Layer */
-        .main-bg-overlay {
-            position: fixed; 
-            inset: 0; 
-            z-index: -1;
-            backdrop-filter: blur(8px) brightness(0.4); 
-            -webkit-backdrop-filter: blur(8px) brightness(0.4); 
-            background: rgba(0,0,0,0.5);
+        /* Intro Background Visual Layer */
+        #intro-bg-visual {
+            position: absolute; inset: 0; z-index: -1;
+            background-size: cover; background-position: center;
+            filter: blur(4px) brightness(0.6);
+            -webkit-filter: blur(4px) brightness(0.6);
         }
 
         /* Typewriter Text */
@@ -82,27 +77,13 @@
         /* Card Flip & Frames */
         .card-inner { transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        
         .card-front, .card-back { 
-            backface-visibility: hidden; 
-            position: absolute; 
-            inset: 0; 
-            border-radius: 2rem; 
-            overflow: hidden; 
-            /* THE FRAME: Glassmorphism border */
-            border: 4px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2rem; overflow: hidden; 
+            border: 4px solid rgba(255, 255, 255, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        
-        .card-back { 
-            transform: rotateY(180deg); 
-            background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700); 
-            display: flex; align-items: center; justify-content: center; 
-            padding: 2.5rem; border: 4px solid white; 
-        }
+        .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700); display: flex; align-items: center; justify-content: center; padding: 2.5rem; border: 4px solid white; }
 
-        .reels-container { scroll-snap-type: y proximity; }
-        .reel-item { scroll-snap-align: center; height: 75vh; margin-bottom: 30px; border: 4px solid rgba(255,255,255,0.1); border-radius: 2.5rem; }
+        .reel-item { scroll-snap-align: center; height: 75vh; margin-bottom: 30px; border: 4px solid rgba(255,255,255,0.1); border-radius: 2.5rem; overflow: hidden; }
     </style>
 </head>
 <body id="body-area">
@@ -116,8 +97,10 @@
         </div>
     </div>
 
+    <div id="main-bg-visual" class="bg-layer-visual"></div>
+
     <div id="intro-screen">
-        <div class="intro-blur"></div>
+        <div id="intro-bg-visual"></div>
         <div id="intro-decor" class="absolute inset-0 z-0"></div>
         <div id="word-container" class="relative z-10 px-8"></div>
         <div class="btn-luxe-wrap relative z-[110] mt-10 scale-0 opacity-0" id="btn-container">
@@ -125,11 +108,9 @@
         </div>
     </div>
 
-    <div id="main-content">
-        <div class="main-bg-overlay"></div>
+    <div id="main-content" class="hidden opacity-0 w-full overflow-y-auto h-screen" style="z-index: 5;">
         <div id="main-decor" class="fixed inset-0 pointer-events-none z-0"></div>
-        
-        <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-12 h-12 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-md">🎵</button>
+        <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-12 h-12 rounded-full border border-white/30 backdrop-blur-md">🎵</button>
         <audio id="bg-music" loop playsinline></audio>
 
         <div class="relative z-10 w-full">
@@ -137,20 +118,18 @@
                 <h1 id="bday-title" class="text-7xl mb-4" style="font-family:'Dancing Script'; color:#FFD700;"></h1>
                 <p id="bday-sub" class="text-white/60 tracking-[0.5em] uppercase text-[9px] font-bold"></p>
             </section>
-            
             <section class="px-6 py-10" style="perspective:1200px;"><div id="gallery-grid" class="flex flex-col gap-10"></div></section>
-            <section class="px-6 py-10 reels-container" id="reels-list"></section>
-            
+            <section class="px-6 py-10" id="reels-list" style="scroll-snap-type: y proximity;"></section>
             <footer class="py-24 px-10 text-center bg-black/60 border-t border-white/10 mt-10"><p id="final-note" class="italic text-white/50"></p></footer>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script>
-        // Magic Touch
+        // Confetti Magic
         document.getElementById('body-area').addEventListener('touchstart', (e) => {
             if (e.target.closest('.card-inner') || e.target.closest('video') || e.target.closest('button')) return;
-            confetti({ particleCount: 15, spread: 40, origin: { x: e.touches[0].clientX/window.innerWidth, y: e.touches[0].clientY/window.innerHeight }, colors: ['#FFD700', '#FF69B4'] });
+            confetti({ particleCount: 15, spread: 40, origin: { x: e.touches[0].clientX/window.innerWidth, y: e.touches[0].clientY/window.innerHeight } });
         });
 
         function createFlow(id, icons) {
@@ -170,35 +149,29 @@
             }
         }
 
-        // --- PRELOADER LOGIC ---
         window.addEventListener('load', () => {
-            const imagesToLoad = [CONFIG.intro.backgroundImg, ...CONFIG.mainPage.backgroundImages, ...CONFIG.gallery.map(g => g.image)];
-            let loadedCount = 0;
-
-            imagesToLoad.forEach(src => {
+            const images = [CONFIG.intro.backgroundImg, ...CONFIG.mainPage.backgroundImages, ...CONFIG.gallery.map(g => g.image)];
+            let loaded = 0;
+            images.forEach(src => {
                 const img = new Image();
                 img.src = src;
                 img.onload = () => {
-                    loadedCount++;
-                    document.getElementById('load-bar').style.width = (loadedCount / imagesToLoad.length) * 100 + '%';
-                    if (loadedCount === imagesToLoad.length) {
-                        setTimeout(() => {
-                            gsap.to('#loading-screen', { opacity: 0, duration: 1, onComplete: () => {
-                                document.getElementById('loading-screen').style.display = 'none';
-                                startIntro();
-                            }});
-                        }, 500);
+                    loaded++;
+                    document.getElementById('load-bar').style.width = (loaded/images.length)*100 + '%';
+                    if(loaded === images.length) {
+                        gsap.to('#loading-screen', { opacity: 0, duration: 1, onComplete: () => {
+                            document.getElementById('loading-screen').style.display = 'none';
+                            startIntro();
+                        }});
                     }
-                };
+                }
             });
         });
 
         function startIntro() {
             createFlow('intro-decor', ['☀️', '🌙', '🌻', '🌸', '🌷', '✨', '☁️']);
-            const intro = document.getElementById('intro-screen');
-            intro.style.backgroundImage = `url(${CONFIG.intro.backgroundImg})`;
-            
-            setTimeout(() => intro.classList.add('reveal-bg'), 300);
+            document.getElementById('intro-bg-visual').style.backgroundImage = `url(${CONFIG.intro.backgroundImg})`;
+            setTimeout(() => document.getElementById('intro-screen').classList.add('reveal-bg'), 300);
             
             const words = CONFIG.intro.message.split('|');
             let tl = gsap.timeline();
@@ -213,30 +186,31 @@
                 const music = document.getElementById('bg-music');
                 music.src = CONFIG.mainPage.musicUrl; music.play();
                 
-                const main = document.getElementById('main-content');
-                main.style.backgroundImage = `url(${CONFIG.mainPage.backgroundImages[0]})`;
+                const mainBg = document.getElementById('main-bg-visual');
+                mainBg.style.backgroundImage = `url(${CONFIG.mainPage.backgroundImages[0]})`;
+                mainBg.style.display = 'block';
 
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
                 createFlow('main-decor', ['🎂', '🎈', '😊', '⭐', '✉️', '🎉', '🌻', '🌙', '🌷']);
                 
                 gsap.to("#intro-screen", { y: "-100%", duration: 1.2, ease: "expo.inOut", onComplete: () => {
                     document.getElementById('intro-screen').style.display = 'none';
-                    main.style.display = 'block';
-                    gsap.to(main, { opacity: 1, duration: 1 });
+                    document.getElementById('main-content').classList.remove('hidden');
+                    gsap.to("#main-content", { opacity: 1, duration: 1 });
                     initMainPage();
                 }});
             };
         }
 
         function initMainPage() {
-            const main = document.getElementById('main-content');
             let bgIdx = 0;
             const bgs = CONFIG.mainPage.backgroundImages;
+            const mainBg = document.getElementById('main-bg-visual');
 
             if(bgs.length > 1) {
                 setInterval(() => {
                     bgIdx = (bgIdx + 1) % bgs.length;
-                    main.style.backgroundImage = `url(${bgs[bgIdx]})`;
+                    mainBg.style.backgroundImage = `url(${bgs[bgIdx]})`;
                 }, 6000);
             }
 
@@ -249,8 +223,7 @@
                 const card = document.createElement('div');
                 card.className = "h-[450px] w-full";
                 card.innerHTML = `<div class="card-inner" onclick="this.classList.toggle('is-flipped'); if(navigator.vibrate) navigator.vibrate(30);">
-                    <div class="card-front">
-                        <img src="${item.image}" class="w-full h-full object-cover">
+                    <div class="card-front"><img src="${item.image}" class="w-full h-full object-cover">
                         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-[9px] font-bold text-center">Tap to Reveal Surprise ↺</div>
                     </div>
                     <div class="card-back"><p class="text-2xl font-['Playfair_Display'] italic text-center">"${item.note}"</p></div>
@@ -260,7 +233,7 @@
             const reels = document.getElementById('reels-list');
             CONFIG.videos.forEach(v => {
                 const div = document.createElement('div');
-                div.className = "reel-item w-full overflow-hidden bg-black shadow-2xl border border-white/10 relative";
+                div.className = "reel-item w-full relative";
                 div.innerHTML = `<video src="${v}" class="w-full h-full object-cover bday-video" loop playsinline muted></video>
                                 <div class="absolute top-6 left-6 bg-black/40 px-4 py-2 rounded-full text-[8px] font-bold">SOUND 🔊</div>`;
                 div.onclick = () => {
