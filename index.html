@@ -14,72 +14,34 @@
     <style>
         body, html { margin: 0; padding: 0; background: #000; color: white; overflow-x: hidden; height: 100%; width: 100%; }
         
-        /* THE ULTIMATE FIX: The Super-Layer */
-        #super-layer {
-            position: fixed; inset: 0; z-index: 999; /* Higher than everything */
-            pointer-events: none;
-        }
+        /* The Super-Layer for Crisp Objects */
+        #super-layer { position: fixed; inset: 0; z-index: 999; pointer-events: none; }
+        .float-obj { position: absolute; opacity: 0.6; font-size: 30px; filter: none !important; -webkit-filter: none !important; will-change: transform; }
 
-        .float-obj { 
-            position: absolute; 
-            opacity: 0.6; 
-            font-size: 30px; 
-            filter: none !important; 
-            -webkit-filter: none !important;
-            will-change: transform; /* Forces GPU to keep it sharp */
-        }
-
-        /* Loading Screen */
-        #loading-screen {
-            position: fixed; inset: 0; z-index: 1000; background: #000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-
-        /* Intro Screen */
-        #intro-screen { 
-            position: fixed; inset: 0; z-index: 100; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            background-size: cover; background-position: center; 
-            clip-path: inset(0 0 100% 0);
-            transition: clip-path 3s cubic-bezier(0.19, 1, 0.22, 1);
-        }
+        /* Background Layers */
+        #intro-screen { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; background-size: cover; background-position: center; clip-path: inset(0 0 100% 0); transition: clip-path 3s cubic-bezier(0.19, 1, 0.22, 1); }
         .reveal-bg { clip-path: inset(0 0 0 0) !important; }
-        .intro-blur { 
-            position: absolute; inset: 0; 
-            backdrop-filter: blur(6px) brightness(0.6); -webkit-backdrop-filter: blur(6px) brightness(0.6); 
-            background: rgba(0,0,0,0.3); z-index: 1;
-        }
+        .intro-blur { position: absolute; inset: 0; backdrop-filter: blur(6px) brightness(0.6); -webkit-backdrop-filter: blur(6px) brightness(0.6); background: rgba(0,0,0,0.3); z-index: 1; }
 
-        /* Main Content */
-        #main-content { 
-            display: none; opacity: 0; width: 100%; height: 100vh; overflow-y: auto; 
-            background-size: cover; background-position: center; background-attachment: fixed;
-            transition: background-image 2s ease-in-out;
-        }
+        #main-content { display: none; opacity: 0; width: 100%; height: 100vh; overflow-y: auto; background-size: cover; background-position: center; background-attachment: fixed; transition: background-image 2s ease-in-out; }
         .main-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: -1; }
 
-        /* Stylish Text */
-        #word-container {
-            font-family: 'Caveat', cursive; font-size: 3rem; text-align: center;
-            background: linear-gradient(to right, #ff0080, #ff8c00, #40e0d0, #ff0080);
-            background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            -webkit-text-stroke: 1px black; animation: flowColors 4s linear infinite;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.5); min-height: 120px; position: relative; z-index: 10;
-        }
+        /* Typography */
+        #word-container { font-family: 'Caveat', cursive; font-size: 3rem; text-align: center; background: linear-gradient(to right, #ff0080, #ff8c00, #40e0d0, #ff0080); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; -webkit-text-stroke: 1px black; animation: flowColors 4s linear infinite; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); min-height: 120px; position: relative; z-index: 10; }
         @keyframes flowColors { 0% { background-position: 0%; } 100% { background-position: 200%; } }
+
+        /* Interactive Title Tilt */
+        #bday-title { transition: transform 0.1s ease-out; font-family: 'Dancing Script'; color: #FFD700; cursor: default; }
 
         /* Luxe Button */
         .btn-luxe-wrap { padding: 3px; border-radius: 50px; background: linear-gradient(45deg, #FF69B4, #00FFFF, #FFD700); background-size: 300%; animation: borderAnim 4s linear infinite; }
         @keyframes borderAnim { 0% { background-position: 0%; } 100% { background-position: 300%; } }
         .btn-luxe { position: relative; padding: 18px 45px; background: #000; color: #fff; font-weight: 800; border-radius: 50px; border: none; font-size: 14px; }
 
-        /* Card Flip & Frames */
+        /* Gallery Frames */
         .card-inner { transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        .card-front, .card-back { 
-            backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2rem; overflow: hidden; 
-            border: 4px solid rgba(255, 255, 255, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        .card-front, .card-back { backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2rem; overflow: hidden; border: 4px solid rgba(255, 255, 255, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700); display: flex; align-items: center; justify-content: center; padding: 2rem; border: 4px solid white; }
 
         .reel-item { scroll-snap-align: center; height: 75vh; margin-bottom: 30px; border: 4px solid rgba(255,255,255,0.1); border-radius: 2.5rem; overflow: hidden; position: relative; }
@@ -88,10 +50,9 @@
 <body id="body-area">
 
     <script>gsap.registerPlugin(TextPlugin);</script>
-
     <div id="super-layer"></div>
 
-    <div id="loading-screen">
+    <div id="loading-screen" class="fixed inset-0 z-[1000] bg-black flex flex-col items-center justify-center">
         <div class="text-white font-bold tracking-widest animate-pulse">LOADING MEMORIES...</div>
         <div class="mt-4 w-48 h-1 bg-white/20 rounded-full overflow-hidden">
             <div id="load-bar" class="h-full bg-pink-500 w-0 transition-all duration-500"></div>
@@ -111,22 +72,26 @@
         <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-12 h-12 rounded-full border border-white/30 backdrop-blur-md">🎵</button>
         <audio id="bg-music" loop playsinline></audio>
 
-        <div class="relative z-10 w-full">
+        <div class="relative z-10 w-full" id="scroll-wrapper">
             <section class="h-screen flex flex-col items-center justify-center text-center p-6">
-                <h1 id="bday-title" class="text-7xl mb-4" style="font-family:'Dancing Script'; color:#FFD700;"></h1>
+                <h1 id="bday-title" class="text-7xl mb-4"></h1>
                 <p id="bday-sub" class="text-white/60 tracking-[0.5em] uppercase text-[9px] font-bold"></p>
             </section>
             
             <section class="px-6 py-10" style="perspective:1200px;"><div id="gallery-grid" class="flex flex-col gap-10"></div></section>
             <section class="px-6 py-10" id="reels-list" style="scroll-snap-type: y proximity;"></section>
             
-            <footer class="py-24 px-10 text-center bg-black/60 border-t border-white/10 mt-10"><p id="final-note" class="italic text-white/50"></p></footer>
+            <footer id="final-footer" class="py-24 px-10 text-center bg-black/60 border-t border-white/10 mt-10">
+                <p id="final-note" class="italic text-white/50"></p>
+            </footer>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script>
-        // Confetti logic remains the same
+        // --- Vibration Wrapper ---
+        function pulse() { if (navigator.vibrate) navigator.vibrate(40); }
+
         document.getElementById('body-area').addEventListener('touchstart', (e) => {
             if (e.target.closest('.card-inner') || e.target.closest('video') || e.target.closest('button')) return;
             confetti({ particleCount: 15, spread: 40, origin: { x: e.touches[0].clientX/window.innerWidth, y: e.touches[0].clientY/window.innerHeight } });
@@ -134,10 +99,8 @@
 
         function createFlow(icons) {
             const container = document.getElementById('super-layer');
-            const dirs = ['top', 'bottom', 'left', 'right'];
-            // We empty the layer each time we switch phases to keep it clean
             container.innerHTML = '';
-            
+            const dirs = ['top', 'bottom', 'left', 'right'];
             for (let i = 0; i < 24; i++) {
                 const el = document.createElement('div');
                 el.className = 'float-obj';
@@ -187,16 +150,13 @@
             tl.to("#btn-container", { opacity: 1, scale: 1, duration: 0.8 });
 
             document.getElementById('start-btn').onclick = () => {
-                if (navigator.vibrate) navigator.vibrate(50);
+                pulse();
                 const music = document.getElementById('bg-music');
                 music.src = CONFIG.mainPage.musicUrl; music.play();
                 
                 const main = document.getElementById('main-content');
                 main.style.backgroundImage = `url(${CONFIG.mainPage.backgroundImages[0]})`;
-
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-                
-                // Switching icons for Main phase
                 createFlow(['🎂', '🎈', '😊', '⭐', '✉️', '🎉', '🌻', '🌙', '🌷']);
                 
                 gsap.to("#intro-screen", { y: "-100%", duration: 1.2, ease: "expo.inOut", onComplete: () => {
@@ -212,23 +172,32 @@
             const main = document.getElementById('main-content');
             let idx = 0;
             const bgs = CONFIG.mainPage.backgroundImages;
-
-            if(bgs.length > 1) {
-                setInterval(() => {
-                    idx = (idx + 1) % bgs.length;
-                    main.style.backgroundImage = `url(${bgs[idx]})`;
-                }, 6000);
-            }
+            if(bgs.length > 1) { setInterval(() => { idx = (idx + 1) % bgs.length; main.style.backgroundImage = `url(${bgs[idx]})`; }, 6000); }
 
             document.getElementById('bday-title').innerText = CONFIG.mainPage.birthdayMessage;
             document.getElementById('bday-sub').innerText = CONFIG.mainPage.subMessage;
             document.getElementById('final-note').innerText = CONFIG.finalMessage;
             
+            // --- Interactive Title Tilt ---
+            main.addEventListener('scroll', () => {
+                const move = Math.sin(main.scrollTop / 200) * 10;
+                document.getElementById('bday-title').style.transform = `perspective(1000px) rotateX(${move}deg)`;
+            });
+
+            // --- Confetti Final Strike ---
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.9 }, colors: ['#FFD700', '#FFFFFF'] });
+                    observer.disconnect(); 
+                }
+            }, { threshold: 0.5 });
+            observer.observe(document.getElementById('final-footer'));
+
             const grid = document.getElementById('gallery-grid');
             CONFIG.gallery.forEach(item => {
                 const card = document.createElement('div');
                 card.className = "h-[450px] w-full";
-                card.innerHTML = `<div class="card-inner" onclick="this.classList.toggle('is-flipped');">
+                card.innerHTML = `<div class="card-inner" onclick="this.classList.toggle('is-flipped'); pulse();">
                     <div class="card-front"><img src="${item.image}" class="w-full h-full object-cover">
                         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-[9px] font-bold text-center">Tap to Reveal Surprise ↺</div>
                     </div>
@@ -236,6 +205,7 @@
                 </div>`;
                 grid.appendChild(card);
             });
+
             const reels = document.getElementById('reels-list');
             CONFIG.videos.forEach(v => {
                 const div = document.createElement('div');
@@ -251,7 +221,7 @@
                 };
                 reels.appendChild(div);
             });
-            document.getElementById('music-toggle').onclick = () => { const m = document.getElementById('bg-music'); m.paused ? m.play() : m.pause(); };
+            document.getElementById('music-toggle').onclick = () => { pulse(); const m = document.getElementById('bg-music'); m.paused ? m.play() : m.pause(); };
         }
     </script>
 </body>
