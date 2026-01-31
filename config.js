@@ -1,29 +1,22 @@
-// config.js - The Control Center for your Birthday Page
 const CONFIG = {
-    // --- Intro Screen Settings ---
     intro: {
-        backgroundImg: "MyImage10.jpg", // File name in your GitHub repo
-        // Use the "|" symbol to define where the text breaks for the animation
+        backgroundImg: "MyImage10.jpg",
         message: "A special message | for a special person | is just a click away | Happy Birthday! | Let's celebrate!", 
         buttonText: "Open My Wish"
     },
-
-    // --- Main Screen Settings ---
     main: {
         backgroundImages: [
             "MyImage1.jpg",
             "MyImage2.jpg",
             "MyImage3.jpg",
             "MyImage4.jpg",
-            "MyImage5.jpg"
+            "MyImage5.jpg",
+            "MyImage11.jpg"
         ],
         birthdayMessage: "Happy Birthday!",
         subMessage: "Wishing you a year full of joy, success, and endless smiles.",
-        musicUrl: "Blue.mp3" // Ensure this is uploaded to the same folder
+        musicUrl: "Blue.mp3"
     },
-
-    // --- Flip Gallery (6-8 images) ---
-    // These appear as cards that flip when tapped
     gallery: [
         { image: "MyImage1.jpg", note: "Add a personalized memory message here!" },
         { image: "MyImage2.jpg", note: "You can mention a specific date or event." },
@@ -34,22 +27,15 @@ const CONFIG = {
         { image: "MyImage7.jpg", note: "This one is my favorite photo!" },
         { image: "MyImage8.jpg", note: "Ending the gallery with a smile." }
     ],
-
-    // --- Video Reels (Instagram Style) ---
-    // Add the filenames of your vertical videos
     videos: [
         "MyVideo4.mp4",
         "MyVideo4.mp4",
         "MyVideo4.mp4"
     ],
-
-    // --- Final Message at the bottom ---
     finalMessage: "Made with ❤️ just for you. Have the best day ever!",
-
-    // --- Premium Styling ---
     colors: {
-        primary: "#FFD700",    // Gold for that premium feel
-        secondary: "#FF69B4",  // Joyful pink
-        accent: "#FFFFFF"      // Clean white
+        primary: "#FFD700",
+        secondary: "#FF69B4",
+        accent: "#FFFFFF"
     }
 };
