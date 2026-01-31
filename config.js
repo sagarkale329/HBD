@@ -6,10 +6,16 @@ const CONFIG = {
         buttonText: "Open My Wish"
     },
 
-    // --- Main Page ---
+    // --- Main Page Slideshow ---
     mainPage: {
-        // Using MyImage10.jpg here as requested to match the working Intro
-        backgroundImg: "MyImage10.jpg", 
+        backgroundImages: [
+            "MyImage1.jpg",
+            "MyImage2.jpg",
+            "MyImage3.jpg",
+            "MyImage4.jpg",
+            "MyImage5.jpg",
+            "MyImage11.jpg"
+        ],
         birthdayMessage: "Happy Birthday!",
         subMessage: "Wishing you a year full of joy, success, and endless smiles.",
         musicUrl: "Blue.mp3" 
@@ -26,7 +32,6 @@ const CONFIG = {
         { image: "MyImage7.jpg", note: "This one is my favorite photo!" },
         { image: "MyImage8.jpg", note: "Ending the gallery with a smile." }
     ],
-    // 4 Slots using the same video file
     videos: [
         "MyVideo4.mp4",
         "MyVideo4.mp4",
