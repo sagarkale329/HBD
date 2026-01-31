@@ -3,28 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bespoke Birthday Surprise</title>
+    <title>Professional Birthday Page</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=Inter:wght@400;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@400;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     
     <style>
         :root { --gold: #FFD700; --pink: #FF69B4; --cyan: #00FFFF; }
-        body, html { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #000; color: white; height: 100%; width: 100%; overflow-x: hidden; }
+        body, html { margin: 0; padding: 0; background: #000; color: white; height: 100%; width: 100%; overflow-x: hidden; }
         
         .float-obj { position: fixed; pointer-events: none; z-index: 10; opacity: 0.6; font-size: 32px; }
 
-        /* Background Reveal Logic */
-        .bg-reveal-layer {
-            position: absolute; inset: 0; background-size: cover; background-position: center;
-            filter: blur(4px) brightness(0.6); clip-path: inset(0 0 100% 0);
-            transition: clip-path 2.5s cubic-bezier(0.19, 1, 0.22, 1);
+        /* The Safe-Layer Background Engine */
+        .bg-layer {
+            position: fixed; inset: 0; z-index: -1;
+            background-size: cover; background-position: center;
+            opacity: 0; transition: opacity 2s ease-in-out;
+            filter: blur(2px) brightness(0.5);
         }
-        .reveal-active { clip-path: inset(0 0 0 0) !important; }
 
-        /* Button Styling */
+        /* Intro Background - Top to Bottom Reveal */
+        #intro-bg-layer {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center;
+            filter: blur(6px) brightness(0.6);
+            clip-path: inset(0 0 100% 0);
+            transition: clip-path 3s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .reveal-bg { clip-path: inset(0 0 0 0) !important; }
+
+        /* Luxe Button Design */
         .btn-luxe {
             position: relative; padding: 20px 50px; background: #000; color: #fff;
             font-weight: 800; border-radius: 50px; z-index: 1; border: none;
@@ -37,18 +47,11 @@
         }
         @keyframes borderAnim { 0% { background-position: 0%; } 100% { background-position: 300%; } }
 
-        /* Restored Card Geometry */
-        .perspective { perspective: 1200px; }
+        /* 3D Cards */
         .card-inner { transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        .card-front, .card-back { 
-            backface-visibility: hidden; position: absolute; inset: 0; 
-            border-radius: 2.5rem; overflow: hidden; 
-        }
-        .card-back { 
-            transform: rotateY(180deg); background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700);
-            display: flex; align-items: center; justify-content: center; padding: 2.5rem; border: 2px solid white;
-        }
+        .card-front, .card-back { backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2.5rem; overflow: hidden; }
+        .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700); display: flex; align-items: center; justify-content: center; padding: 2.5rem; border: 2px solid white; }
 
         .reels-container { scroll-snap-type: y mandatory; overflow-y: scroll; height: 80vh; scrollbar-width: none; }
         .reel-item { scroll-snap-align: center; height: 75vh; margin-bottom: 30px; }
@@ -57,26 +60,26 @@
 <body id="body-area">
 
     <div id="intro-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center">
-        <div id="intro-bg" class="bg-reveal-layer"></div>
+        <div id="intro-bg-layer"></div>
         <div id="intro-decor" class="absolute inset-0"></div>
-        <div id="word-container" class="relative z-10 text-4xl px-8 text-center opacity-0 h-32 flex items-center" style="font-family:'Playfair Display'; font-weight:900; color:var(--pink); text-shadow:0 0 15px rgba(255,255,255,0.5);"></div>
+        <div id="word-container" class="relative z-10 text-4xl px-8 text-center opacity-0 h-32 flex items-center" style="font-family:'Playfair Display'; font-weight:900; color:#fff; text-shadow: 0 0 15px var(--pink), 0 0 30px var(--pink);"></div>
         <div class="btn-luxe-wrap relative z-[110] mt-10 scale-0 opacity-0" id="btn-container">
             <button id="start-btn" class="btn-luxe">Open My Wish</button>
         </div>
     </div>
 
     <div id="main-content" class="hidden opacity-0 h-full w-full overflow-y-auto">
-        <div id="main-bg" class="bg-reveal-layer fixed"></div>
+        <div id="bg-layers-container"></div>
         <div id="main-decor" class="fixed inset-0 pointer-events-none z-0"></div>
         <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-14 h-14 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-md">🎵</button>
         <audio id="bg-music" loop playsinline></audio>
 
-        <div class="relative z-10 w-full" id="magic-area">
+        <div class="relative z-10 w-full">
             <section class="h-screen flex flex-col items-center justify-center text-center p-6">
                 <h1 id="bday-title" class="text-7xl mb-4" style="font-family:'Dancing Script'; color:var(--gold);"></h1>
-                <p id="bday-sub" class="text-white/60 tracking-[0.4em] uppercase text-[9px]"></p>
+                <p id="bday-sub" class="text-white/60 tracking-[0.4em] uppercase text-[9px] font-bold"></p>
             </section>
-            <section class="px-6 py-10 perspective"><div id="gallery-grid" class="flex flex-col gap-12"></div></section>
+            <section class="px-6 py-10" style="perspective:1200px;"><div id="gallery-grid" class="flex flex-col gap-12"></div></section>
             <section class="px-6 py-10 reels-container" id="reels-list"></section>
             <footer class="py-24 px-10 text-center bg-black/60 border-t border-white/10"><p id="final-note" class="italic text-white/50"></p></footer>
         </div>
@@ -84,7 +87,6 @@
 
     <script src="config.js"></script>
     <script>
-        // --- Re-integrated Magic Touch ---
         document.getElementById('body-area').addEventListener('touchstart', (e) => {
             if (e.target.closest('.card-inner') || e.target.closest('video') || e.target.closest('button')) return;
             confetti({ particleCount: 15, spread: 40, origin: { x: e.touches[0].clientX/window.innerWidth, y: e.touches[0].clientY/window.innerHeight }, colors: ['#FFD700', '#FF69B4'] });
@@ -109,9 +111,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             createFlow('intro-decor', ['☀️', '🌙', '🌻', '🌸', '🌷', '✨', '☁️']);
-            const introBg = document.getElementById('intro-bg');
+            const introBg = document.getElementById('intro-bg-layer');
             introBg.style.backgroundImage = `url(${CONFIG.intro.backgroundImg})`;
-            setTimeout(() => introBg.classList.add('reveal-active'), 500);
+            setTimeout(() => introBg.classList.add('reveal-bg'), 500);
 
             const words = CONFIG.intro.message.split('|');
             let tl = gsap.timeline();
@@ -125,9 +127,6 @@
                 if (navigator.vibrate) navigator.vibrate(50);
                 const music = document.getElementById('bg-music');
                 music.src = CONFIG.main.musicUrl; music.play();
-                const mainBg = document.getElementById('main-bg');
-                mainBg.style.backgroundImage = `url(${CONFIG.main.backgroundImages[0]})`;
-                mainBg.classList.add('reveal-active');
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
                 createFlow('main-decor', ['🎂', '🎈', '😊', '⭐', '✉️', '🎉', '🌻', '🌙', '🌷']);
                 gsap.to("#intro-screen", { y: "-100%", duration: 1.2, ease: "expo.inOut", onComplete: () => {
@@ -140,14 +139,33 @@
         });
 
         function initMain() {
+            const bgCont = document.getElementById('bg-layers-container');
+            CONFIG.main.backgroundImages.forEach((url, i) => {
+                const layer = document.createElement('div');
+                layer.className = 'bg-layer';
+                layer.style.backgroundImage = `url(${url})`;
+                layer.id = `bg-layer-${i}`;
+                bgCont.appendChild(layer);
+            });
+
+            let currentBg = 0;
+            const rotateBGs = () => {
+                const layers = document.querySelectorAll('.bg-layer');
+                layers.forEach((l, i) => l.style.opacity = (i === currentBg) ? '0.5' : '0');
+                currentBg = (currentBg + 1) % layers.length;
+            };
+            rotateBGs();
+            setInterval(rotateBGs, 5000);
+
             document.getElementById('bday-title').innerText = CONFIG.main.birthdayMessage;
             document.getElementById('bday-sub').innerText = CONFIG.main.subMessage;
             document.getElementById('final-note').innerText = CONFIG.finalMessage;
+            
             const grid = document.getElementById('gallery-grid');
             CONFIG.gallery.forEach(item => {
                 const card = document.createElement('div');
                 card.className = "h-[480px] w-full";
-                card.innerHTML = `<div class="card-inner" onclick="this.classList.toggle('is-flipped');">
+                card.innerHTML = `<div class="card-inner" onclick="this.classList.toggle('is-flipped'); if(navigator.vibrate) navigator.vibrate(30);">
                     <div class="card-front"><img src="${item.image}" class="w-full h-full object-cover">
                         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-[9px] font-bold text-center">Tap to Reveal Surprise ↺</div>
                     </div>
@@ -155,6 +173,7 @@
                 </div>`;
                 grid.appendChild(card);
             });
+
             const reels = document.getElementById('reels-list');
             CONFIG.videos.forEach(v => {
                 const div = document.createElement('div');
