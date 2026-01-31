@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=Inter:wght@400;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Playfair+Display:ital,wght@1,900&family=Poppins:wght@400;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     
     <style>
         :root { --gold: #FFD700; --pink: #FF69B4; --cyan: #00FFFF; }
@@ -17,50 +17,52 @@
         
         .float-obj { position: fixed; pointer-events: none; z-index: 10; opacity: 0.6; font-size: 32px; }
 
-        /* Stable Background Logic */
-        .bg-layer {
-            position: fixed; inset: 0; z-index: -1;
+        /* Unified Background Strategy */
+        .full-bg {
+            position: fixed; inset: 0;
             background-size: cover; background-position: center;
-            filter: blur(4px) brightness(0.5);
-            display: none;
+            z-index: -2;
         }
 
-        /* Intro Background - Wipe Reveal */
+        /* Intro Specific Reveal */
         #intro-bg-layer {
-            position: absolute; inset: 0;
-            background-size: cover; background-position: center;
-            filter: blur(6px) brightness(0.7);
+            filter: blur(4px) brightness(0.6);
             clip-path: inset(0 0 100% 0);
             transition: clip-path 3s cubic-bezier(0.19, 1, 0.22, 1);
         }
         .reveal-bg { clip-path: inset(0 0 0 0) !important; }
 
-        /* Typewriter with High Contrast */
-        #word-container {
-            font-family: 'Playfair Display', serif; font-weight: 900; font-size: 2.25rem;
-            background: linear-gradient(to right, var(--pink), var(--gold), var(--cyan));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            -webkit-text-stroke: 1.5px black;
-            text-shadow: 0 0 15px var(--pink), 2px 2px 4px #000;
-            min-height: 120px; display: flex; align-items: center; justify-content: center;
+        /* Main Page Specific (Simple like Intro) */
+        #main-bg-layer {
+            filter: blur(5px) brightness(0.5);
+            display: none;
         }
 
-        .btn-luxe-wrap { padding: 3px; border-radius: 50px; background: linear-gradient(45deg, var(--pink), var(--cyan), var(--gold), var(--pink)); background-size: 300%; animation: borderAnim 4s linear infinite; }
+        /* Typewriter: Colorful + Thin Black Outline */
+        #word-container {
+            font-family: 'Caveat', cursive; /* New stylish font */
+            font-size: 3rem;
+            background: linear-gradient(to right, #ff0080, #ff8c00, #40e0d0, #ff0080);
+            background-size: 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            -webkit-text-stroke: 0.8px black;
+            animation: flowColors 4s linear infinite;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            min-height: 140px; display: flex; align-items: center; justify-content: center;
+        }
+        @keyframes flowColors { 0% { background-position: 0%; } 100% { background-position: 200%; } }
+
+        .btn-luxe-wrap { padding: 3px; border-radius: 50px; background: linear-gradient(45deg, var(--pink), var(--cyan), var(--gold)); background-size: 300%; animation: borderAnim 4s linear infinite; }
         @keyframes borderAnim { 0% { background-position: 0%; } 100% { background-position: 300%; } }
         .btn-luxe { position: relative; padding: 20px 50px; background: #000; color: #fff; font-weight: 800; border-radius: 50px; z-index: 1; border: none; }
 
-        /* 3D Cards */
         .card-inner { transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
         .card-front, .card-back { backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2.5rem; overflow: hidden; }
         .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700); display: flex; align-items: center; justify-content: center; padding: 2.5rem; border: 2px solid white; }
 
-        /* Reels with Scroll Release */
-        .reels-container { 
-            scroll-snap-type: y proximity; 
-            overflow-y: visible; 
-            margin-bottom: 50px;
-        }
+        .reels-container { scroll-snap-type: y proximity; margin-bottom: 50px; }
         .reel-item { scroll-snap-align: center; height: 75vh; margin-bottom: 30px; }
     </style>
 </head>
@@ -68,10 +70,10 @@
 
     <script>gsap.registerPlugin(TextPlugin);</script>
 
-    <div id="main-bg" class="bg-layer"></div>
+    <div id="main-bg-layer" class="full-bg"></div>
 
     <div id="intro-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center">
-        <div id="intro-bg-layer"></div>
+        <div id="intro-bg-layer" class="full-bg"></div>
         <div id="intro-decor" class="absolute inset-0"></div>
         <div id="word-container" class="relative z-10 px-8 text-center"></div>
         <div class="btn-luxe-wrap relative z-[110] mt-10 scale-0 opacity-0" id="btn-container">
@@ -81,33 +83,29 @@
 
     <div id="main-content" class="hidden opacity-0 h-full w-full overflow-y-auto">
         <div id="main-decor" class="fixed inset-0 pointer-events-none z-0"></div>
-        
-        <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-14 h-14 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-md shadow-2xl">🎵</button>
+        <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-14 h-14 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-md">🎵</button>
         <audio id="bg-music" loop playsinline></audio>
 
-        <div class="relative z-10 w-full" id="content-scroller">
+        <div class="relative z-10 w-full">
             <section class="h-screen flex flex-col items-center justify-center text-center p-6">
                 <h1 id="bday-title" class="text-7xl mb-4" style="font-family:'Dancing Script'; color:var(--gold);"></h1>
                 <p id="bday-sub" class="text-white/60 tracking-[0.5em] uppercase text-[9px] font-bold"></p>
             </section>
             
             <section class="px-6 py-10" style="perspective:1200px;"><div id="gallery-grid" class="flex flex-col gap-12"></div></section>
-            
             <section class="px-6 py-10 reels-container" id="reels-list"></section>
             
             <footer class="py-32 px-10 text-center bg-black/80 border-t border-white/10 mt-20">
                 <p id="final-note" class="text-xl italic font-['Playfair_Display'] text-white/70"></p>
-                <div class="mt-8 text-[8px] uppercase tracking-widest opacity-30">End of Surprise</div>
             </footer>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script>
-        // Magic Touch Confetti
         document.getElementById('body-area').addEventListener('touchstart', (e) => {
             if (e.target.closest('.card-inner') || e.target.closest('video') || e.target.closest('button')) return;
-            confetti({ particleCount: 15, spread: 40, origin: { x: e.touches[0].clientX/window.innerWidth, y: e.touches[0].clientY/window.innerHeight }, colors: ['#FFD700', '#FF69B4'] });
+            confetti({ particleCount: 15, spread: 40, origin: { x: e.touches[0].clientX/window.innerWidth, y: e.touches[0].clientY/window.innerHeight } });
         });
 
         function createFlow(id, icons) {
@@ -137,17 +135,17 @@
             let tl = gsap.timeline();
             words.forEach(w => {
                 tl.to("#word-container", { duration: 1.5, text: w.trim(), ease: "none" })
-                  .to("#word-container", { duration: 1, opacity: 0, delay: 1, onComplete: () => { gsap.set("#word-container", { text: "", opacity: 1 }); } });
+                  .to("#word-container", { duration: 1, opacity: 0, delay: 1.2, onComplete: () => { gsap.set("#word-container", { text: "", opacity: 1 }); } });
             });
             tl.to("#btn-container", { opacity: 1, scale: 1, duration: 0.8 });
 
             document.getElementById('start-btn').onclick = () => {
-                if (navigator.vibrate) navigator.vibrate(50);
                 const music = document.getElementById('bg-music');
-                music.src = CONFIG.main.musicUrl; music.play();
+                music.src = CONFIG.mainPage.musicUrl; music.play();
                 
-                const mainBg = document.getElementById('main-bg');
-                mainBg.style.backgroundImage = `url(${CONFIG.main.backgroundImg})`;
+                // Mirror the Intro logic exactly for stability
+                const mainBg = document.getElementById('main-bg-layer');
+                mainBg.style.backgroundImage = `url(${CONFIG.mainPage.backgroundImg})`;
                 mainBg.style.display = 'block';
 
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
@@ -163,8 +161,8 @@
         });
 
         function initMain() {
-            document.getElementById('bday-title').innerText = CONFIG.main.birthdayMessage;
-            document.getElementById('bday-sub').innerText = CONFIG.main.subMessage;
+            document.getElementById('bday-title').innerText = CONFIG.mainPage.birthdayMessage;
+            document.getElementById('bday-sub').innerText = CONFIG.mainPage.subMessage;
             document.getElementById('final-note').innerText = CONFIG.finalMessage;
             
             const grid = document.getElementById('gallery-grid');
@@ -172,7 +170,7 @@
                 const card = document.createElement('div');
                 card.className = "h-[450px] w-full";
                 card.innerHTML = `<div class="card-inner" onclick="this.classList.toggle('is-flipped'); if(navigator.vibrate) navigator.vibrate(30);">
-                    <div class="card-front shadow-2xl"><img src="${item.image}" class="w-full h-full object-cover">
+                    <div class="card-front"><img src="${item.image}" class="w-full h-full object-cover">
                         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-[9px] font-bold text-center">Tap to Reveal Surprise ↺</div>
                     </div>
                     <div class="card-back shadow-2xl"><p class="text-2xl font-['Playfair_Display'] italic text-center">"${item.note}"</p></div>
@@ -200,4 +198,3 @@
     </script>
 </body>
 </html>
-
