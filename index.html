@@ -3,75 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Premium Birthday Celebration</title>
+    <title>Bespoke Birthday Surprise</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@300;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=Inter:wght@400;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        :root { --gold: #FFD700; --pink: #FF69B4; }
+        :root { --gold: #FFD700; --pink: #FF69B4; --cyan: #00FFFF; }
         body, html { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #000; color: white; height: 100%; width: 100%; overflow-x: hidden; }
         
-        /* Faded Floating Objects (No Blur) */
-        .float-obj { position: fixed; pointer-events: none; z-index: 10; will-change: transform; opacity: 0.6; font-size: 32px; }
+        .float-obj { position: fixed; pointer-events: none; z-index: 10; opacity: 0.6; font-size: 32px; }
 
-        /* Intro Background - Top to Bottom Reveal */
-        #intro-bg-layer {
-            position: absolute; inset: 0;
-            background-size: cover; background-position: center;
-            filter: blur(4px) brightness(0.7); /* Decreased blur as requested */
-            clip-path: inset(0 0 100% 0); /* Start hidden at top */
-            transition: clip-path 3s cubic-bezier(0.19, 1, 0.22, 1);
+        /* Reveal Background Logic (Used for both screens) */
+        .bg-reveal-layer {
+            position: absolute; inset: 0; background-size: cover; background-position: center;
+            filter: blur(4px) brightness(0.6); clip-path: inset(0 0 100% 0);
+            transition: clip-path 2.5s cubic-bezier(0.19, 1, 0.22, 1);
         }
-        .reveal-bg { clip-path: inset(0 0 0 0) !important; }
+        .reveal-active { clip-path: inset(0 0 0 0) !important; }
 
-        /* Neon Intro Box */
-        #word-container {
-            text-shadow: 0 0 15px #fff, 0 0 30px var(--pink);
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            background: rgba(0, 0, 0, 0.5);
-            padding: 25px; border-radius: 35px;
+        /* Stylish Intro Text (Neon Glitch) */
+        .intro-text-style {
+            font-family: 'Playfair Display', serif; font-weight: 900;
+            background: linear-gradient(to right, var(--pink), #fff, var(--cyan));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
+            animation: textPulse 2s infinite alternate;
+        }
+        @keyframes textPulse { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(90deg); } }
+
+        /* Stylish Main Wish (Liquid Gold) */
+        .main-wish-style {
+            font-family: 'Dancing Script', cursive;
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4));
         }
 
-        /* Restored 3D Flip Logic */
+        /* Spinning Colorful Button Border */
+        .btn-premium {
+            position: relative; padding: 16px 40px; background: #fff; color: #000;
+            font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
+            border-radius: 50px; overflow: hidden; transition: 0.3s;
+        }
+        .btn-premium::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(var(--pink), var(--cyan), var(--gold), var(--pink));
+            animation: spin 3s linear infinite; z-index: -1;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
         .perspective { perspective: 1200px; }
-        .card-inner { 
-            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); 
-            transform-style: preserve-3d; position: relative; width: 100%; height: 100%; 
-        }
+        .card-inner { transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        .card-front, .card-back { backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2.5rem; overflow: hidden; }
         .card-back { 
-            transform: rotateY(180deg); 
-            background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700);
-            display: flex; align-items: center; justify-content: center; 
-            padding: 2rem; border: 2px solid white;
+            transform: rotateY(180deg); background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700);
+            backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2.5rem;
+            display: flex; align-items: center; justify-content: center; padding: 2rem; border: 2px solid white;
         }
 
-        /* Improved Smooth Snap Video Section */
-        .reels-container { 
-            scroll-snap-type: y mandatory; 
-            overflow-y: scroll; 
-            height: 75vh; 
-            scrollbar-width: none; 
-            -webkit-overflow-scrolling: touch; 
-        }
-        .reels-container::-webkit-scrollbar { display: none; }
-        .reel-item { scroll-snap-align: center; height: 75vh; position: relative; margin-bottom: 40px; }
+        .reels-container { scroll-snap-type: y mandatory; overflow-y: scroll; height: 80vh; scrollbar-width: none; }
     </style>
 </head>
 <body id="body-area">
 
     <div id="intro-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center">
-        <div id="intro-bg-layer"></div>
+        <div id="intro-bg" class="bg-reveal-layer"></div>
         <div id="intro-decor" class="absolute inset-0"></div>
-        <div id="word-container" class="relative z-10 text-3xl italic font-['Playfair_Display'] text-white text-center opacity-0 max-w-[85%]"></div>
-        <button id="start-btn" class="mt-12 px-10 py-4 bg-white text-black rounded-full font-bold tracking-widest uppercase text-[10px] scale-0 opacity-0 relative z-[110]">Open My Wish</button>
+        <div id="word-container" class="relative z-10 intro-text-style text-4xl px-8 text-center opacity-0 h-32 flex items-center"></div>
+        <div class="p-[3px] rounded-full relative z-[110] mt-10 scale-0 opacity-0" id="btn-container">
+            <button id="start-btn" class="btn-premium">Open My Wish</button>
+        </div>
     </div>
 
     <div id="main-content" class="hidden opacity-0 h-full w-full overflow-y-auto">
+        <div id="main-bg" class="bg-reveal-layer fixed"></div>
         <div id="main-decor" class="fixed inset-0 pointer-events-none z-0"></div>
         
         <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-14 h-14 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-md">🎵</button>
@@ -79,130 +87,100 @@
 
         <div class="relative z-10 w-full">
             <section class="h-screen flex flex-col items-center justify-center text-center p-6">
-                <h1 id="bday-title" class="text-6xl mb-4 font-['Playfair_Display'] italic text-white"></h1>
-                <p id="bday-sub" class="text-white/60 tracking-[0.5em] uppercase text-[8px]"></p>
+                <h1 id="bday-title" class="text-7xl mb-4 main-wish-style"></h1>
+                <p id="bday-sub" class="text-white/60 tracking-[0.4em] uppercase text-[9px] font-bold"></p>
             </section>
 
             <section class="px-6 py-10 perspective"><div id="gallery-grid" class="flex flex-col gap-10"></div></section>
-            
-            <section class="px-6 py-10">
-                <h2 class="text-xs uppercase tracking-[0.4em] text-white/40 mb-10 text-center">Moments in Motion</h2>
-                <div id="reels-list" class="reels-container"></div>
-            </section>
-
-            <footer class="py-24 px-10 text-center bg-black/60 border-t border-white/10">
-                <p id="final-note" class="text-lg italic font-['Playfair_Display'] text-white/70"></p>
-            </footer>
+            <section class="px-6 py-10" id="reels-list" class="reels-container"></section>
+            <footer class="py-24 px-10 text-center bg-black/70 border-t border-white/10"><p id="final-note" class="italic text-white/50"></p></footer>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script>
-        // --- Magic Touch Logic ---
-        document.getElementById('body-area').addEventListener('touchstart', (e) => {
-            if (e.target.closest('.card-inner') || e.target.closest('.reel-item') || e.target.closest('button')) return;
-            confetti({ particleCount: 15, spread: 40, origin: { x: e.touches[0].clientX/window.innerWidth, y: e.touches[0].clientY/window.innerHeight }, colors: ['#FFD700', '#FF69B4'] });
-        });
-
-        // --- 4-Way Motion (Faded, No Blur) ---
-        function createFlow(containerId, icons) {
-            const container = document.getElementById(containerId);
+        function createFlow(id, icons) {
+            const container = document.getElementById(id);
             const dirs = ['top', 'bottom', 'left', 'right'];
             for (let i = 0; i < 24; i++) {
                 const el = document.createElement('div');
                 el.className = 'float-obj';
                 el.innerHTML = icons[Math.floor(Math.random() * icons.length)];
                 container.appendChild(el);
-
-                let from = {}, to = {}, d = dirs[i % 4];
+                let d = dirs[i % 4], from = {}, to = {};
                 if (d === 'top') { from = { y: -60, x: Math.random()*100+'vw' }; to = { y: '110vh' }; }
                 else if (d === 'bottom') { from = { y: '110vh', x: Math.random()*100+'vw' }; to = { y: -60 }; }
                 else if (d === 'left') { from = { x: -60, y: Math.random()*100+'vh' }; to = { x: '110vw' }; }
                 else { from = { x: '110vw', y: Math.random()*100+'vh' }; to = { x: -60 }; }
-
                 gsap.fromTo(el, from, { ...to, rotation: 360, duration: 15 + Math.random()*10, repeat: -1, ease: "none", delay: Math.random()*10 });
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             createFlow('intro-decor', ['☀️', '🌙', '🌻', '🌸', '🌷', '✨', '☁️']);
-            
-            // Trigger slow background reveal
-            const introBg = document.getElementById('intro-bg-layer');
+            const introBg = document.getElementById('intro-bg');
             introBg.style.backgroundImage = `url(${CONFIG.intro.backgroundImg})`;
-            setTimeout(() => introBg.classList.add('reveal-bg'), 500);
+            setTimeout(() => introBg.classList.add('reveal-active'), 500);
 
             const words = CONFIG.intro.message.split('|');
             let tl = gsap.timeline();
-            words.forEach((word) => {
-                tl.to("#word-container", { duration: 1, opacity: 1, onStart: () => { document.getElementById('word-container').innerHTML = word.trim(); }, ease: "power2.out" })
+            words.forEach(w => {
+                tl.to("#word-container", { duration: 1, opacity: 1, onStart: () => document.getElementById('word-container').innerHTML = w.trim(), ease: "power2.out" })
                   .to("#word-container", { duration: 1, opacity: 0, delay: 1.5, ease: "power2.in" });
             });
-            tl.to("#start-btn", { opacity: 1, scale: 1, duration: 0.8, display: 'block', onStart: () => { document.getElementById('start-btn').innerText = CONFIG.intro.buttonText; } });
+            tl.to("#btn-container", { opacity: 1, scale: 1, duration: 0.8 });
 
-            document.getElementById('start-btn').onclick = startExperience;
+            document.getElementById('start-btn').onclick = () => {
+                if (navigator.vibrate) navigator.vibrate(50);
+                const music = document.getElementById('bg-music');
+                music.src = CONFIG.main.musicUrl; music.play();
+                const mainBg = document.getElementById('main-bg');
+                mainBg.style.backgroundImage = `url(${CONFIG.main.backgroundImages[0]})`;
+                mainBg.classList.add('reveal-active');
+                createFlow('main-decor', ['🎂', '🎈', '😊', '⭐', '✉️', '🎉', '🌻', '🌙', '🌷']);
+                gsap.to("#intro-screen", { y: "-100%", duration: 1.2, ease: "expo.inOut", onComplete: () => {
+                    document.getElementById('intro-screen').style.display = 'none';
+                    document.getElementById('main-content').classList.remove('hidden');
+                    gsap.to("#main-content", { opacity: 1, duration: 1 });
+                    initMain();
+                }});
+            };
         });
 
-        function startExperience() {
-            if (navigator.vibrate) navigator.vibrate(50);
-            const music = document.getElementById('bg-music');
-            music.src = CONFIG.main.musicUrl;
-            music.play();
-            
-            createFlow('main-decor', ['🎂', '🎈', '😊', '⭐', '✉️', '🎉', '🌻', '🌙', '🌷']);
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-
-            gsap.to("#intro-screen", { y: "-100%", duration: 1.2, ease: "expo.inOut", onComplete: () => {
-                document.getElementById('intro-screen').style.display = 'none';
-                document.getElementById('main-content').classList.remove('hidden');
-                gsap.to("#main-content", { opacity: 1, duration: 1 });
-                initMainPage();
-            }});
-        }
-
-        function initMainPage() {
+        function initMain() {
             document.getElementById('bday-title').innerText = CONFIG.main.birthdayMessage;
             document.getElementById('bday-sub').innerText = CONFIG.main.subMessage;
             document.getElementById('final-note').innerText = CONFIG.finalMessage;
-
             const grid = document.getElementById('gallery-grid');
-            CONFIG.gallery.forEach((item) => {
+            CONFIG.gallery.forEach(item => {
                 const card = document.createElement('div');
                 card.className = "h-[450px] w-full";
-                card.innerHTML = `
-                    <div class="card-inner" onclick="this.classList.toggle('is-flipped'); if(navigator.vibrate) navigator.vibrate(30);">
-                        <div class="card-front">
-                            <img src="${item.image}" class="w-full h-full object-cover">
-                            <div class="absolute bottom-6 right-6 bg-white/20 backdrop-blur-md w-10 h-10 rounded-full flex items-center justify-center border border-white/40 animate-pulse">
-                                <span class="text-white text-xs">↺</span>
-                            </div>
+                card.innerHTML = `<div class="card-inner" onclick="this.classList.toggle('is-flipped'); if(navigator.vibrate) navigator.vibrate(30);">
+                    <div class="card-front"><img src="${item.image}" class="w-full h-full object-cover">
+                        <div class="absolute bottom-6 right-6 flex flex-col items-center gap-1 animate-bounce">
+                            <div class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[8px] font-bold">Tap to Reveal Surprise</div>
+                            <div class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center border border-white/40">↺</div>
                         </div>
-                        <div class="card-back"><p class="text-2xl font-['Playfair_Display'] italic text-white text-center">"${item.note}"</p></div>
-                    </div>`;
+                    </div>
+                    <div class="card-back"><p class="text-2xl font-['Playfair_Display'] italic text-center text-white">"${item.note}"</p></div>
+                </div>`;
                 grid.appendChild(card);
             });
-
             const reels = document.getElementById('reels-list');
-            const bgMusic = document.getElementById('bg-music');
             CONFIG.videos.forEach(v => {
                 const div = document.createElement('div');
-                div.className = "reel-item w-full rounded-[2.5rem] overflow-hidden bg-black shadow-2xl border border-white/10";
-                div.innerHTML = `<video src="${v}" class="w-full h-full object-cover bday-video" loop playsinline muted></video>
+                div.className = "reel-item w-full rounded-[2.5rem] overflow-hidden bg-black mb-10 shadow-2xl border border-white/10";
+                div.innerHTML = `<video src="${v}" class="w-full h-full object-cover" loop playsinline muted></video>
                                 <div class="absolute top-6 left-6 bg-black/40 px-4 py-2 rounded-full text-[8px] font-bold">SOUND 🔊</div>`;
                 div.onclick = () => {
-                    const video = div.querySelector('video');
-                    if(video.muted) {
-                        document.querySelectorAll('.bday-video').forEach(vid => { vid.muted = true; vid.pause(); });
-                        video.muted = false; video.play();
-                        gsap.to(bgMusic, { volume: 0, duration: 1, onComplete: () => bgMusic.pause() });
-                    } else {
-                        video.muted = true; bgMusic.play();
-                        gsap.to(bgMusic, { volume: 1, duration: 1 });
-                    }
+                    const vid = div.querySelector('video'), music = document.getElementById('bg-music');
+                    if(vid.muted) {
+                        document.querySelectorAll('video').forEach(v => { v.muted = true; v.pause(); });
+                        vid.muted = false; vid.play(); music.pause();
+                    } else { vid.muted = true; music.play(); }
                 };
                 reels.appendChild(div);
             });
-            document.getElementById('music-toggle').onclick = () => { bgMusic.paused ? bgMusic.play() : bgMusic.pause(); };
         }
     </script>
 </body>
