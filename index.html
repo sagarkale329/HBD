@@ -9,15 +9,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@300;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@300;600&display=swap" rel="stylesheet">
     
     <style>
         :root { --gold: #FFD700; }
         body, html { margin: 0; padding: 0; overflow-x: hidden; font-family: 'Inter', sans-serif; background: #000; color: white; }
         
-        /* Premium Background Blur */
         .blur-light { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
         .blur-premium { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
+        /* Premium Floating Elements */
+        .flower { position: absolute; pointer-events: none; z-index: 15; opacity: 0.6; }
 
         .premium-text {
             background: linear-gradient(45deg, #fff, var(--gold), #fff, #FF69B4);
@@ -38,31 +40,31 @@
         .reels-container { scroll-snap-type: y mandatory; overflow-y: scroll; height: 80vh; scrollbar-width: none; border-radius: 2rem; }
         .reel-item { scroll-snap-align: start; height: 80vh; position: relative; margin-bottom: 20px; }
 
-        /* THE FIX: Force Button to the Front */
-        #start-btn { 
-            position: relative; 
-            z-index: 999 !important; 
-            cursor: pointer;
-            pointer-events: auto !important;
-        }
+        #start-btn { position: relative; z-index: 999 !important; cursor: pointer; pointer-events: auto !important; }
+        
+        /* Preload images to avoid black screen */
+        #bg-slideshow { background-size: cover; background-position: center; transition: background-image 1.5s ease-in-out, opacity 1.5s ease-in-out; }
     </style>
 </head>
 <body>
 
     <div id="intro-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-cover bg-center">
         <div class="absolute inset-0 bg-black/30 blur-light"></div>
+        
+        <div id="flower-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+
         <div id="word-container" class="relative z-10 text-4xl italic font-['Playfair_Display'] text-white px-10 text-center drop-shadow-2xl h-24 flex items-center justify-center"></div>
         
-        <button id="start-btn" class="mt-12 px-12 py-5 bg-white text-black rounded-full font-bold tracking-widest uppercase text-[10px] shadow-[0_20px_50px_rgba(255,255,255,0.2)] scale-0 transition-transform active:scale-90 opacity-0">
+        <button id="start-btn" class="mt-12 px-12 py-5 bg-white text-black rounded-full font-bold tracking-widest uppercase text-[10px] shadow-[0_20px_50px_rgba(255,255,255,0.2)] scale-0 transition-all active:scale-90 opacity-0">
             Open My Wish
         </button>
     </div>
 
     <div id="main-content" class="hidden opacity-0">
-        <div id="bg-slideshow" class="fixed inset-0 z-[-1] bg-cover bg-center transition-all duration-2000 blur-light scale-105"></div>
+        <div id="bg-slideshow" class="fixed inset-0 z-[-1] blur-light opacity-60 scale-105"></div>
         
         <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/10 w-14 h-14 rounded-full flex items-center justify-center border border-white/20 blur-premium shadow-2xl">🎵</button>
-        <audio id="bg-music" loop playsinline></audio>
+        <audio id="bg-music" loop playsinline preload="auto"></audio>
 
         <section class="h-screen flex flex-col items-center justify-center text-center p-6">
             <h1 id="bday-title" class="text-6xl mb-4 premium-text"></h1>
@@ -87,12 +89,38 @@
 
     <script src="config.js"></script>
     <script>
-        // --- Intro Sequence ---
+        // --- Petal Animation ---
+        function createPetals() {
+            const container = document.getElementById('flower-container');
+            for (let i = 0; i < 15; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'flower';
+                petal.innerHTML = i % 2 === 0 ? '🌸' : '✨'; // Flower and sparkle mix
+                petal.style.fontSize = Math.random() * 20 + 10 + 'px';
+                petal.style.left = Math.random() * 100 + 'vw';
+                container.appendChild(petal);
+                
+                gsap.fromTo(petal, 
+                    { y: -50, x: Math.random() * 100 - 50, rotation: 0 },
+                    { 
+                        y: window.innerHeight + 50, 
+                        x: '+=100', 
+                        rotation: 360, 
+                        duration: 5 + Math.random() * 5, 
+                        repeat: -1, 
+                        delay: Math.random() * 5, 
+                        ease: "none" 
+                    }
+                );
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const intro = document.getElementById('intro-screen');
             const btn = document.getElementById('start-btn');
             const wordBox = document.getElementById('word-container');
 
+            createPetals();
             intro.style.backgroundImage = `url(${CONFIG.intro.backgroundImg})`;
             btn.innerText = CONFIG.intro.buttonText;
 
@@ -104,23 +132,26 @@
                   .to(wordBox, { duration: 0.8, opacity: 0, delay: 1.2, ease: "power2.in" });
             });
 
-            // Reveal Button
             tl.to(btn, { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.7)" });
 
-            // ADD CLICK EVENT MANUALLY FOR BETTER MOBILE SUPPORT
-            btn.addEventListener('click', startExperience);
-            btn.addEventListener('touchstart', (e) => { 
-                e.preventDefault(); 
-                startExperience(); 
-            }, {passive: false});
+            btn.addEventListener('click', () => {
+                startExperience();
+            });
         });
 
         function startExperience() {
             const music = document.getElementById('bg-music');
             music.src = CONFIG.main.musicUrl;
-            music.play().catch(() => {});
+            
+            // Critical: Mobile Music Start
+            const playPromise = music.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {}).catch(error => {
+                    console.log("Playback failed. User must interact again.");
+                });
+            }
 
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#FFD700', '#FFFFFF'] });
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#FFD700', '#FFFFFF', '#FF69B4'] });
 
             gsap.to("#intro-screen", {
                 y: "-100%", duration: 1.2, ease: "expo.inOut",
@@ -136,21 +167,29 @@
         function initMainPage() {
             const bgEl = document.getElementById('bg-slideshow');
             let bgIdx = 0;
+            
+            // Immediate set first background
             bgEl.style.backgroundImage = `url(${CONFIG.main.backgroundImages[0]})`;
+            
+            // Automatic Slideshow Logic
             setInterval(() => {
                 bgIdx = (bgIdx + 1) % CONFIG.main.backgroundImages.length;
-                gsap.to(bgEl, { opacity: 0, duration: 1.5, onComplete: () => {
-                    bgEl.style.backgroundImage = `url(${CONFIG.main.backgroundImages[bgIdx]})`;
-                    gsap.to(bgEl, { opacity: 1, duration: 1.5 });
+                const nextImg = CONFIG.main.backgroundImages[bgIdx];
+                
+                // Fade out, change image, fade in
+                gsap.to(bgEl, { opacity: 0, duration: 1, onComplete: () => {
+                    bgEl.style.backgroundImage = `url(${nextImg})`;
+                    gsap.to(bgEl, { opacity: 0.6, duration: 1 }); // Maintain 60% opacity for fade look
                 }});
-            }, 6000);
+            }, 5000);
 
             document.getElementById('bday-title').innerText = CONFIG.main.birthdayMessage;
             document.getElementById('bday-sub').innerText = CONFIG.main.subMessage;
             document.getElementById('final-note').innerText = CONFIG.finalMessage;
 
+            // Build Gallery
             const grid = document.getElementById('gallery-grid');
-            CONFIG.gallery.forEach((item, i) => {
+            CONFIG.gallery.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = "h-[450px] w-full perspective-1000";
                 card.innerHTML = `
@@ -164,6 +203,7 @@
                 grid.appendChild(card);
             });
 
+            // Build Reels
             const reels = document.getElementById('reels-list');
             CONFIG.videos.forEach(v => {
                 reels.innerHTML += `
