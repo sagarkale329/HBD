@@ -2,7 +2,7 @@ const CONFIG = {
     // --- Intro Screen ---
     intro: {
         backgroundImg: "bg.png", 
-        message: "A special message | for a special person | is just a click away | Happy Birthday! | Let's celebrate!", 
+        message: "Mi pn simple whatsapp status thevnar hoto | But then I thought 🤔 | I should try to do something special | Because you are special | So, let's go 🤘!", 
         buttonText: "Open My Wish"
     },
 
@@ -17,21 +17,21 @@ const CONFIG = {
             "slide6.jpg",
             "slide7.jpg"
         ],
-        birthdayMessage: "Happy Birthday!",
-        subMessage: "Wishing you a year full of joy, success, and endless smiles.",
+        birthdayMessage: "Happy Birthday Ashwini !!!",
+        subMessage: "Wishing you a Happy 16th (🙃) Birthday. May bappa fulfil all your wishes🌻",
         musicUrl: "Blue.mp3" 
     },
 
     // --- Content ---
     gallery: [
-        { image: "pic1.png", note: "Add a personalized memory message here!" },
-        { image: "pic2.png", note: "You can mention a specific date or event." },
-        { image: "pic3.png", note: "Another beautiful moment captured." },
-        { image: "pic4.png", note: "Your words make this feel premium." },
-        { image: "pic5.png", note: "Keep the notes short and sweet." },
-        { image: "pic6.png", note: "Almost there, one more memory!" },
-        { image: "pic7.png", note: "This one is my favorite photo!" },
-        { image: "pic8.png", note: "Ending the gallery with a smile." }
+        { image: "pic1.png", note: "I hope you know, how wonderfully weird 🤪 you are!" },
+        { image: "pic2.png", note: "Just stop overthinking, and believe in yourself 💪 💯" },
+        { image: "pic3.png", note: "Never stop flexing those dimple, just keep smiling 😇 ... Always 🤘" },
+        { image: "pic4.png", note: "Effortlessly gorgeous 👸" },
+        { image: "pic5.png", note: "Adventurous" },
+        { image: "pic6.png", note: "Never try to hide those cute Rabbit 🐰 teeths 🙃" },
+        { image: "pic7.png", note: "Might have told you before, this is my favourite picture of you 😁" },
+        { image: "pic8.png", note: "Please put your health before anything else and take care of yourself 💆" }
     ],
     videos: [
         "MyVideo4.mp4",
@@ -39,5 +39,5 @@ const CONFIG = {
         "MyVideo4.mp4",
         "MyVideo4.mp4"
     ],
-    finalMessage: "Made with ❤️ just for you. Have the best day ever!"
+    finalMessage: "Boht ho gayi jhooth muth ki tarif ab aur nhi kar paunga 😬, so bybye & Have the best day ever 🤘"
 };
