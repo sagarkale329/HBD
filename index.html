@@ -14,9 +14,20 @@
         :root { --gold: #FFD700; --pink: #FF69B4; }
         body, html { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #000; color: white; height: 100%; width: 100%; overflow-x: hidden; }
         
-        .float-obj { position: fixed; pointer-events: none; z-index: 10; will-change: transform; opacity: 0.9; font-size: 32px; }
+        /* Faded Floating Objects (No Blur) */
+        .float-obj { position: fixed; pointer-events: none; z-index: 10; will-change: transform; opacity: 0.6; font-size: 32px; }
 
-        /* Neon Intro Style */
+        /* Intro Background - Top to Bottom Reveal */
+        #intro-bg-layer {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center;
+            filter: blur(4px) brightness(0.7); /* Decreased blur as requested */
+            clip-path: inset(0 0 100% 0); /* Start hidden at top */
+            transition: clip-path 3s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .reveal-bg { clip-path: inset(0 0 0 0) !important; }
+
+        /* Neon Intro Box */
         #word-container {
             text-shadow: 0 0 15px #fff, 0 0 30px var(--pink);
             border: 2px solid rgba(255, 255, 255, 0.4);
@@ -24,57 +35,62 @@
             padding: 25px; border-radius: 35px;
         }
 
-        /* Fixed Background Strategy */
-        #main-bg-container {
-            position: fixed; inset: 0; z-index: -1;
-            filter: brightness(0.5) blur(3px);
-            display: none;
-        }
-        #main-bg-container img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; transition: opacity 1.5s ease-in-out; }
-
-        /* 3D Flip Card */
+        /* Restored 3D Flip Logic */
         .perspective { perspective: 1200px; }
-        .card-inner { transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
+        .card-inner { 
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            transform-style: preserve-3d; position: relative; width: 100%; height: 100%; 
+        }
         .card-inner.is-flipped { transform: rotateY(180deg); }
         .card-front, .card-back { backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2.5rem; overflow: hidden; }
         .card-back { 
             transform: rotateY(180deg); 
             background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            padding: 2rem; border: 2px solid white; text-align: center;
+            display: flex; align-items: center; justify-content: center; 
+            padding: 2rem; border: 2px solid white;
         }
 
-        .reels-container { scroll-snap-type: y mandatory; overflow-y: scroll; height: 80vh; scrollbar-width: none; }
+        /* Improved Smooth Snap Video Section */
+        .reels-container { 
+            scroll-snap-type: y mandatory; 
+            overflow-y: scroll; 
+            height: 75vh; 
+            scrollbar-width: none; 
+            -webkit-overflow-scrolling: touch; 
+        }
         .reels-container::-webkit-scrollbar { display: none; }
+        .reel-item { scroll-snap-align: center; height: 75vh; position: relative; margin-bottom: 40px; }
     </style>
 </head>
 <body id="body-area">
 
-    <div id="main-bg-container"></div>
-
-    <div id="intro-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-cover bg-center">
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-md"></div>
+    <div id="intro-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center">
+        <div id="intro-bg-layer"></div>
         <div id="intro-decor" class="absolute inset-0"></div>
         <div id="word-container" class="relative z-10 text-3xl italic font-['Playfair_Display'] text-white text-center opacity-0 max-w-[85%]"></div>
-        <button id="start-btn" class="mt-12 px-10 py-4 bg-white text-black rounded-full font-bold tracking-widest uppercase text-[10px] scale-0 opacity-0 relative z-[110] shadow-[0_0_20px_rgba(255,255,255,0.4)]">Open My Wish</button>
+        <button id="start-btn" class="mt-12 px-10 py-4 bg-white text-black rounded-full font-bold tracking-widest uppercase text-[10px] scale-0 opacity-0 relative z-[110]">Open My Wish</button>
     </div>
 
     <div id="main-content" class="hidden opacity-0 h-full w-full overflow-y-auto">
         <div id="main-decor" class="fixed inset-0 pointer-events-none z-0"></div>
         
-        <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-14 h-14 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-md shadow-2xl">🎵</button>
+        <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-14 h-14 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-md">🎵</button>
         <audio id="bg-music" loop playsinline></audio>
 
         <div class="relative z-10 w-full">
             <section class="h-screen flex flex-col items-center justify-center text-center p-6">
-                <h1 id="bday-title" class="text-6xl mb-4 font-['Playfair_Display'] italic text-white drop-shadow-lg"></h1>
+                <h1 id="bday-title" class="text-6xl mb-4 font-['Playfair_Display'] italic text-white"></h1>
                 <p id="bday-sub" class="text-white/60 tracking-[0.5em] uppercase text-[8px]"></p>
             </section>
 
             <section class="px-6 py-10 perspective"><div id="gallery-grid" class="flex flex-col gap-10"></div></section>
-            <section class="px-6 py-10"><div id="reels-list" class="reels-container"></div></section>
+            
+            <section class="px-6 py-10">
+                <h2 class="text-xs uppercase tracking-[0.4em] text-white/40 mb-10 text-center">Moments in Motion</h2>
+                <div id="reels-list" class="reels-container"></div>
+            </section>
 
-            <footer class="py-24 px-10 text-center bg-black/60 border-t border-white/10 mt-10">
+            <footer class="py-24 px-10 text-center bg-black/60 border-t border-white/10">
                 <p id="final-note" class="text-lg italic font-['Playfair_Display'] text-white/70"></p>
             </footer>
         </div>
@@ -88,33 +104,34 @@
             confetti({ particleCount: 15, spread: 40, origin: { x: e.touches[0].clientX/window.innerWidth, y: e.touches[0].clientY/window.innerHeight }, colors: ['#FFD700', '#FF69B4'] });
         });
 
-        // --- Multi-Directional Flow System ---
-        function createFlow(containerId, icons, isIntro = false) {
+        // --- 4-Way Motion (Faded, No Blur) ---
+        function createFlow(containerId, icons) {
             const container = document.getElementById(containerId);
-            const directions = ['top', 'bottom', 'left', 'right'];
-            
-            for (let i = 0; i < 20; i++) {
+            const dirs = ['top', 'bottom', 'left', 'right'];
+            for (let i = 0; i < 24; i++) {
                 const el = document.createElement('div');
                 el.className = 'float-obj';
                 el.innerHTML = icons[Math.floor(Math.random() * icons.length)];
                 container.appendChild(el);
 
-                let from = {}, to = {}, dir = isIntro ? 'bottom' : directions[i % 4];
-
-                if (dir === 'top') { from = { y: -60, x: Math.random()*100+'vw' }; to = { y: '110vh' }; }
-                else if (dir === 'bottom') { from = { y: '110vh', x: Math.random()*100+'vw' }; to = { y: -60 }; }
-                else if (dir === 'left') { from = { x: -60, y: Math.random()*100+'vh' }; to = { x: '110vw' }; }
+                let from = {}, to = {}, d = dirs[i % 4];
+                if (d === 'top') { from = { y: -60, x: Math.random()*100+'vw' }; to = { y: '110vh' }; }
+                else if (d === 'bottom') { from = { y: '110vh', x: Math.random()*100+'vw' }; to = { y: -60 }; }
+                else if (d === 'left') { from = { x: -60, y: Math.random()*100+'vh' }; to = { x: '110vw' }; }
                 else { from = { x: '110vw', y: Math.random()*100+'vh' }; to = { x: -60 }; }
 
-                gsap.fromTo(el, from, { ...to, rotation: 360, duration: 12 + Math.random()*8, repeat: -1, ease: "none", delay: Math.random()*10 });
+                gsap.fromTo(el, from, { ...to, rotation: 360, duration: 15 + Math.random()*10, repeat: -1, ease: "none", delay: Math.random()*10 });
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            createFlow('intro-decor', ['☀️', '🌙', '🌻', '🌸', '🌷', '✨', '☁️'], true);
-            const intro = document.getElementById('intro-screen');
-            intro.style.backgroundImage = `url(${CONFIG.intro.backgroundImg})`;
+            createFlow('intro-decor', ['☀️', '🌙', '🌻', '🌸', '🌷', '✨', '☁️']);
             
+            // Trigger slow background reveal
+            const introBg = document.getElementById('intro-bg-layer');
+            introBg.style.backgroundImage = `url(${CONFIG.intro.backgroundImg})`;
+            setTimeout(() => introBg.classList.add('reveal-bg'), 500);
+
             const words = CONFIG.intro.message.split('|');
             let tl = gsap.timeline();
             words.forEach((word) => {
@@ -132,17 +149,6 @@
             music.src = CONFIG.main.musicUrl;
             music.play();
             
-            // Rebuilt Background Injection Logic
-            const bgContainer = document.getElementById('main-bg-container');
-            bgContainer.style.display = 'block';
-            CONFIG.main.backgroundImages.forEach((img, i) => {
-                const el = document.createElement('img');
-                el.src = img;
-                el.style.opacity = i === 0 ? '1' : '0';
-                el.id = `bg-img-${i}`;
-                bgContainer.appendChild(el);
-            });
-
             createFlow('main-decor', ['🎂', '🎈', '😊', '⭐', '✉️', '🎉', '🌻', '🌙', '🌷']);
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
 
@@ -159,28 +165,19 @@
             document.getElementById('bday-sub').innerText = CONFIG.main.subMessage;
             document.getElementById('final-note').innerText = CONFIG.finalMessage;
 
-            // Background Slideshow
-            let bgIdx = 0;
-            const bgCount = CONFIG.main.backgroundImages.length;
-            setInterval(() => {
-                const current = document.getElementById(`bg-img-${bgIdx}`);
-                bgIdx = (bgIdx + 1) % bgCount;
-                const next = document.getElementById(`bg-img-${bgIdx}`);
-                if (current) current.style.opacity = '0';
-                if (next) next.style.opacity = '1';
-            }, 5000);
-
             const grid = document.getElementById('gallery-grid');
             CONFIG.gallery.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = "h-[450px] w-full";
                 card.innerHTML = `
                     <div class="card-inner" onclick="this.classList.toggle('is-flipped'); if(navigator.vibrate) navigator.vibrate(30);">
-                        <div class="card-front shadow-2xl"><img src="${item.image}" class="w-full h-full object-cover"></div>
-                        <div class="card-back shadow-2xl">
-                            <p class="text-2xl font-['Playfair_Display'] italic text-white drop-shadow-md">"${item.note}"</p>
-                            <div class="mt-6 text-[10px] uppercase tracking-widest opacity-60">Tap to flip back</div>
+                        <div class="card-front">
+                            <img src="${item.image}" class="w-full h-full object-cover">
+                            <div class="absolute bottom-6 right-6 bg-white/20 backdrop-blur-md w-10 h-10 rounded-full flex items-center justify-center border border-white/40 animate-pulse">
+                                <span class="text-white text-xs">↺</span>
+                            </div>
                         </div>
+                        <div class="card-back"><p class="text-2xl font-['Playfair_Display'] italic text-white text-center">"${item.note}"</p></div>
                     </div>`;
                 grid.appendChild(card);
             });
