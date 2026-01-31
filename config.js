@@ -10,11 +10,12 @@ const CONFIG = {
     mainPage: {
         backgroundImages: [
             "slide1.jpg",
-            "MyImage2.jpg",
-            "MyImage3.jpg",
-            "MyImage4.jpg",
-            "MyImage5.jpg",
-            "MyImage11.jpg"
+            "slide2.jpg",
+            "slide3.jpg",
+            "slide4.jpg",
+            "slide5.jpg",
+            "slide6.jpg",
+            "slide7.jpg"
         ],
         birthdayMessage: "Happy Birthday!",
         subMessage: "Wishing you a year full of joy, success, and endless smiles.",
