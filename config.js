@@ -24,14 +24,14 @@ const CONFIG = {
 
     // --- Content ---
     gallery: [
-        { image: "MyImage1.jpg", note: "Add a personalized memory message here!" },
-        { image: "MyImage2.jpg", note: "You can mention a specific date or event." },
-        { image: "MyImage3.jpg", note: "Another beautiful moment captured." },
-        { image: "MyImage4.jpg", note: "Your words make this feel premium." },
-        { image: "MyImage5.jpg", note: "Keep the notes short and sweet." },
-        { image: "MyImage6.jpg", note: "Almost there, one more memory!" },
-        { image: "MyImage7.jpg", note: "This one is my favorite photo!" },
-        { image: "MyImage8.jpg", note: "Ending the gallery with a smile." }
+        { image: "pic1.png", note: "Add a personalized memory message here!" },
+        { image: "pic2.png", note: "You can mention a specific date or event." },
+        { image: "pic3.png", note: "Another beautiful moment captured." },
+        { image: "pic4.png", note: "Your words make this feel premium." },
+        { image: "pic5.png", note: "Keep the notes short and sweet." },
+        { image: "pic6.png", note: "Almost there, one more memory!" },
+        { image: "pic7.png", note: "This one is my favorite photo!" },
+        { image: "pic8.png", note: "Ending the gallery with a smile." }
     ],
     videos: [
         "MyVideo4.mp4",
