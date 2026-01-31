@@ -1,22 +1,21 @@
+// config.js - Flat Structure for better mobile compatibility
 const CONFIG = {
+    // --- Intro Screen ---
     intro: {
-        backgroundImg: "MyImage10.jpg",
+        backgroundImg: "MyImage10.jpg", 
         message: "A special message | for a special person | is just a click away | Happy Birthday! | Let's celebrate!", 
         buttonText: "Open My Wish"
     },
+
+    // --- Main Screen (Flat logic for testing) ---
     main: {
-        backgroundImages: [
-            "MyImage1.jpg",
-            "MyImage2.jpg",
-            "MyImage3.jpg",
-            "MyImage4.jpg",
-            "MyImage5.jpg",
-            "MyImage11.jpg"
-        ],
+        backgroundImg: "MyImage1.jpg", // Only one image for testing
         birthdayMessage: "Happy Birthday!",
         subMessage: "Wishing you a year full of joy, success, and endless smiles.",
-        musicUrl: "Blue.mp3"
+        musicUrl: "Blue.mp3" 
     },
+
+    // --- Gallery ---
     gallery: [
         { image: "MyImage1.jpg", note: "Add a personalized memory message here!" },
         { image: "MyImage2.jpg", note: "You can mention a specific date or event." },
@@ -27,15 +26,13 @@ const CONFIG = {
         { image: "MyImage7.jpg", note: "This one is my favorite photo!" },
         { image: "MyImage8.jpg", note: "Ending the gallery with a smile." }
     ],
+
+    // --- Video Reels ---
     videos: [
         "MyVideo4.mp4",
         "MyVideo4.mp4",
         "MyVideo4.mp4"
     ],
+
     finalMessage: "Made with ❤️ just for you. Have the best day ever!",
-    colors: {
-        primary: "#FFD700",
-        secondary: "#FF69B4",
-        accent: "#FFFFFF"
-    }
 };
