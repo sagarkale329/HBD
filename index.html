@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Professional Birthday Surprise</title>
+    <title>Professional Birthday Page</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -12,23 +12,31 @@
     
     <style>
         :root { --gold: #FFD700; --neon: #FF69B4; }
-        body, html { margin: 0; padding: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #000; color: white; height: 100%; width: 100%; }
+        body, html { margin: 0; padding: 0; overflow-x: hidden; font-family: 'Inter', sans-serif; background: #000; color: white; height: 100%; }
         
-        .blur-premium { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
-        
-        /* Intro Neon Box */
+        /* Neon Intro Text */
         #word-container {
             text-shadow: 0 0 10px #fff, 0 0 20px var(--neon);
             border: 2px solid rgba(255, 255, 255, 0.4);
             background: rgba(0, 0, 0, 0.4);
             padding: 25px;
             border-radius: 30px;
-            box-shadow: inset 0 0 20px rgba(255, 105, 180, 0.2);
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.3);
         }
 
-        .floating-physics { position: absolute; pointer-events: none; z-index: 10; font-size: 30px; will-change: transform; }
+        /* Floating Objects */
+        .obj-up, .obj-down { position: fixed; pointer-events: none; z-index: 10; font-size: 28px; will-change: transform; opacity: 0.7; }
+
+        /* Background Layers (The Fix) */
+        .bg-layer {
+            position: fixed; inset: 0; z-index: -1;
+            background-size: cover; background-position: center;
+            opacity: 0; transition: opacity 2s ease-in-out;
+            filter: blur(4px) brightness(0.6);
+        }
 
         /* Card Flip Styling */
+        .perspective { perspective: 1200px; }
         .card-inner { transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
         .card-front, .card-back { backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2.5rem; overflow: hidden; }
@@ -38,176 +46,166 @@
             background-size: 400% 400%;
             animation: moveGradient 10s infinite;
             display: flex; align-items: center; justify-content: center; padding: 2rem;
-            border: 3px solid white;
+            border: 2px solid white;
         }
 
         @keyframes moveGradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 
-        #bg-slideshow { 
-            position: fixed; inset: 0; z-index: -1; 
-            background-size: cover; background-position: center; 
-            opacity: 0; transition: opacity 1.5s ease-in-out;
-            filter: blur(4px) brightness(0.6);
-        }
-
-        .reels-container { scroll-snap-type: y mandatory; overflow-y: scroll; height: 80vh; scrollbar-width: none; }
+        .reels-container { scroll-snap-type: y mandatory; overflow-y: scroll; height: 80vh; scrollbar-width: none; border-radius: 2rem; }
         .reels-container::-webkit-scrollbar { display: none; }
+        .reel-item { scroll-snap-align: start; height: 80vh; position: relative; margin-bottom: 20px; }
     </style>
 </head>
-<body onclick="spawnStars(event)">
+<body>
 
     <div id="intro-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-cover bg-center">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-        <div id="intro-decor" class="absolute inset-0 overflow-hidden"></div>
+        <div id="intro-decor" class="absolute inset-0"></div>
         <div id="word-container" class="relative z-10 text-3xl italic font-['Playfair_Display'] text-white text-center opacity-0 max-w-[85%]"></div>
         <button id="start-btn" class="mt-12 px-10 py-4 bg-white text-black rounded-full font-bold tracking-widest uppercase text-[10px] scale-0 opacity-0 relative z-[110]">Open My Wish</button>
     </div>
 
     <div id="main-content" class="hidden opacity-0 h-full w-full overflow-y-auto">
-        <div id="bg-slideshow"></div>
+        <div id="bg-container"></div>
         <div id="main-decor" class="fixed inset-0 pointer-events-none z-0"></div>
         
-        <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-14 h-14 rounded-full flex items-center justify-center border border-white/30 blur-premium shadow-2xl">🎵</button>
+        <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-14 h-14 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-md">🎵</button>
         <audio id="bg-music" loop playsinline></audio>
 
-        <div class="relative z-10 w-full">
+        <div class="relative z-10">
             <section class="h-screen flex flex-col items-center justify-center text-center p-6">
-                <h1 id="bday-title" class="text-6xl mb-4 font-['Playfair_Display'] italic text-white drop-shadow-xl"></h1>
+                <h1 id="bday-title" class="text-6xl mb-4 font-['Playfair_Display'] italic text-white"></h1>
                 <p id="bday-sub" class="text-white/60 tracking-[0.5em] uppercase text-[8px]"></p>
             </section>
 
-            <section class="px-6 py-10"><div id="gallery-grid" class="flex flex-col gap-10"></div></section>
+            <section class="px-6 py-10 perspective"><div id="gallery-grid" class="flex flex-col gap-10"></div></section>
             <section class="px-6 py-10"><div id="reels-list" class="reels-container"></div></section>
 
-            <footer class="py-20 px-10 text-center border-t border-white/10 bg-black/60"><p id="final-note" class="text-lg italic font-['Playfair_Display'] text-white/70"></p></footer>
+            <footer class="py-24 px-10 text-center bg-black/50 border-t border-white/10"><p id="final-note" class="text-lg italic font-['Playfair_Display'] text-white/70"></p></footer>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script>
-        let gyroX = 0, gyroY = 0;
-
-        // --- Gravity Sensing ---
-        window.addEventListener('deviceorientation', (event) => {
-            gyroX = event.gamma / 2; // Left/Right tilt
-            gyroY = event.beta / 2;  // Front/Back tilt
-        });
-
-        function spawnStars(e) {
-            confetti({ particleCount: 20, spread: 40, origin: { x: e.clientX/window.innerWidth, y: e.clientY/window.innerHeight }, colors: ['#FFD700', '#FFFFFF'] });
-        }
-
-        function createDecor(id, icons) {
-            const container = document.getElementById(id);
-            for (let i = 0; i < 12; i++) {
+        // --- Dual Flow Decoration ---
+        function createFlow(containerId, icons, direction) {
+            const container = document.getElementById(containerId);
+            for (let i = 0; i < 15; i++) {
                 const el = document.createElement('div');
-                el.className = 'floating-physics';
-                el.innerHTML = icons[Math.floor(Math.random()*icons.length)];
-                el.style.left = Math.random() * 90 + 'vw';
-                el.style.top = Math.random() * 90 + 'vh';
+                el.className = direction === 'up' ? 'obj-up' : 'obj-down';
+                el.innerHTML = icons[Math.floor(Math.random() * icons.length)];
+                el.style.left = Math.random() * 100 + 'vw';
                 container.appendChild(el);
                 
-                gsap.to(el, {
-                    x: () => "+=" + (Math.random() * 100 - 50),
-                    y: () => "+=" + (Math.random() * 100 - 50),
-                    rotation: () => Math.random() * 360,
-                    duration: 2 + Math.random() * 2,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: "sine.inOut",
-                    onUpdate: function() {
-                        gsap.set(el, { x: "+=" + (gyroX * 0.5), y: "+=" + (gyroY * 0.5) });
+                const startY = direction === 'up' ? '110vh' : '-10vh';
+                const endY = direction === 'up' ? '-10vh' : '110vh';
+
+                gsap.fromTo(el, 
+                    { y: startY, rotation: 0, opacity: 0 }, 
+                    { 
+                        y: endY, rotation: 360, opacity: 0.7, 
+                        duration: 8 + Math.random() * 8, 
+                        repeat: -1, delay: Math.random() * 10, ease: "none" 
                     }
-                });
+                );
             }
         }
 
+        // --- Vibration ---
+        function triggerVibrate() {
+            if ("vibrate" in navigator) navigator.vibrate(50);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            createDecor('intro-decor', ['☀️', '☁️', '🌻', '🌸']);
+            // Intro: Nature flows down
+            createFlow('intro-decor', ['☀️', '🌙', '🌻', '🌸', '🌷', '✨'], 'down');
+            
             const intro = document.getElementById('intro-screen');
-            const btn = document.getElementById('start-btn');
-            const wordBox = document.getElementById('word-container');
-
             intro.style.backgroundImage = `url(${CONFIG.intro.backgroundImg})`;
-            btn.innerText = CONFIG.intro.buttonText;
-
+            
             const words = CONFIG.intro.message.split('|');
             let tl = gsap.timeline();
             words.forEach((word) => {
-                tl.to(wordBox, { duration: 1, opacity: 1, onStart: () => { wordBox.innerHTML = word.trim(); }, ease: "power2.out" })
-                  .to(wordBox, { duration: 1, opacity: 0, delay: 1.5, ease: "power2.in" });
+                tl.to("#word-container", { duration: 1, opacity: 1, onStart: () => { document.getElementById('word-container').innerHTML = word.trim(); }, ease: "power2.out" })
+                  .to("#word-container", { duration: 1, opacity: 0, delay: 1.5, ease: "power2.in" });
             });
-            tl.to(btn, { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.7)" });
+            tl.to("#start-btn", { opacity: 1, scale: 1, duration: 0.8, display: 'block' });
 
-            btn.addEventListener('click', startExperience);
+            document.getElementById('start-btn').onclick = startExperience;
         });
 
         function startExperience() {
+            triggerVibrate();
             const music = document.getElementById('bg-music');
             music.src = CONFIG.main.musicUrl;
             music.play();
             
-            createDecor('main-decor', ['🎂', '🎈', '😊', '🌟', '✉️']);
+            // Main: Celebration flows up
+            createFlow('main-decor', ['🎂', '🎈', '😊', '⭐', '✉️', '🎉'], 'up');
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
 
-            gsap.to("#intro-screen", {
-                y: "-100%", duration: 1.2, ease: "expo.inOut",
-                onComplete: () => {
-                    document.getElementById('intro-screen').style.display = 'none';
-                    document.getElementById('main-content').classList.remove('hidden');
-                    gsap.to("#main-content", { opacity: 1, duration: 1 });
-                    initMainPage();
-                }
-            });
+            gsap.to("#intro-screen", { y: "-100%", duration: 1.2, ease: "expo.inOut", onComplete: () => {
+                document.getElementById('intro-screen').style.display = 'none';
+                document.getElementById('main-content').classList.remove('hidden');
+                gsap.to("#main-content", { opacity: 1, duration: 1 });
+                initMainPage();
+            }});
         }
 
         function initMainPage() {
-            const bgEl = document.getElementById('bg-slideshow');
-            let bgIdx = 0;
+            // --- The Layer-Based Slideshow Fix ---
+            const bgContainer = document.getElementById('bg-container');
+            const images = CONFIG.main.backgroundImages;
             
-            // --- The Ultimate Background Loader ---
-            function loadNewBG() {
-                const nextImg = CONFIG.main.backgroundImages[bgIdx];
-                const loader = new Image();
-                loader.src = nextImg;
-                loader.onload = () => {
-                    gsap.to(bgEl, { opacity: 0, duration: 1.5, onComplete: () => {
-                        bgEl.style.backgroundImage = `url('${nextImg}')`;
-                        gsap.to(bgEl, { opacity: 0.5, duration: 1.5 });
-                        bgIdx = (bgIdx + 1) % CONFIG.main.backgroundImages.length;
-                    }});
-                };
+            // Create a <div> for every image
+            images.forEach((imgUrl, index) => {
+                const layer = document.createElement('div');
+                layer.className = 'bg-layer';
+                layer.style.backgroundImage = `url(${imgUrl})`;
+                layer.id = `bg-layer-${index}`;
+                bgContainer.appendChild(layer);
+            });
+
+            let currentIdx = 0;
+            function rotateBackgrounds() {
+                const layers = document.querySelectorAll('.bg-layer');
+                layers.forEach((l, i) => {
+                    l.style.opacity = (i === currentIdx) ? '0.5' : '0';
+                });
+                currentIdx = (currentIdx + 1) % layers.length;
             }
-            
-            loadNewBG();
-            setInterval(loadNewBG, 6000);
+
+            rotateBackgrounds(); // Start first image
+            setInterval(rotateBackgrounds, 5000); // Rotate every 5 seconds
 
             document.getElementById('bday-title').innerText = CONFIG.main.birthdayMessage;
             document.getElementById('bday-sub').innerText = CONFIG.main.subMessage;
             document.getElementById('final-note').innerText = CONFIG.finalMessage;
 
+            // Gallery
             const grid = document.getElementById('gallery-grid');
             CONFIG.gallery.forEach((item) => {
                 const card = document.createElement('div');
-                card.className = "h-[450px] w-full relative";
+                card.className = "h-[450px] w-full";
                 card.innerHTML = `
-                    <div class="card-inner" onclick="this.classList.toggle('is-flipped')">
-                        <div class="card-front shadow-2xl border border-white/10">
+                    <div class="card-inner" onclick="this.classList.toggle('is-flipped'); triggerVibrate();">
+                        <div class="card-front bg-zinc-900 border border-white/10">
                             <img src="${item.image}" class="w-full h-full object-cover">
-                            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/30 blur-premium px-4 py-2 rounded-full text-[10px] font-bold">FLIPSurprise ↺</div>
+                            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-[10px] font-bold">FLIPSurprise ↺</div>
                         </div>
                         <div class="card-back"><p class="text-xl font-['Playfair_Display'] italic text-white text-center">"${item.note}"</p></div>
                     </div>`;
                 grid.appendChild(card);
             });
 
+            // Reels
             const reels = document.getElementById('reels-list');
             const bgMusic = document.getElementById('bg-music');
             CONFIG.videos.forEach(v => {
                 const div = document.createElement('div');
-                div.className = "reel-item w-full rounded-[2.5rem] overflow-hidden bg-black shadow-2xl border border-white/10";
+                div.className = "reel-item w-full rounded-[2rem] overflow-hidden bg-black shadow-2xl border border-white/10";
                 div.innerHTML = `<video src="${v}" class="w-full h-full object-cover bday-video" loop playsinline muted></video>
-                                <div class="absolute top-6 left-6 bg-black/50 blur-premium px-4 py-2 rounded-full text-[8px] font-bold tracking-widest border border-white/20">SOUND 🔊</div>`;
+                                <div class="absolute top-6 left-6 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full text-[8px] font-bold">SOUND 🔊</div>`;
                 div.onclick = () => {
                     const video = div.querySelector('video');
                     if(video.muted) {
