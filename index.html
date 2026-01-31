@@ -16,7 +16,7 @@
         
         .float-obj { position: fixed; pointer-events: none; z-index: 10; opacity: 0.6; font-size: 32px; }
 
-        /* Reveal Background Logic (Used for both screens) */
+        /* Background Reveal Logic */
         .bg-reveal-layer {
             position: absolute; inset: 0; background-size: cover; background-position: center;
             filter: blur(4px) brightness(0.6); clip-path: inset(0 0 100% 0);
@@ -24,47 +24,34 @@
         }
         .reveal-active { clip-path: inset(0 0 0 0) !important; }
 
-        /* Stylish Intro Text (Neon Glitch) */
-        .intro-text-style {
-            font-family: 'Playfair Display', serif; font-weight: 900;
-            background: linear-gradient(to right, var(--pink), #fff, var(--cyan));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
-            animation: textPulse 2s infinite alternate;
+        /* Button Styling */
+        .btn-luxe {
+            position: relative; padding: 20px 50px; background: #000; color: #fff;
+            font-weight: 800; border-radius: 50px; z-index: 1; border: none;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
         }
-        @keyframes textPulse { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(90deg); } }
+        .btn-luxe-wrap {
+            padding: 3px; border-radius: 50px;
+            background: linear-gradient(45deg, var(--pink), var(--cyan), var(--gold), var(--pink));
+            background-size: 300%; animation: borderAnim 4s linear infinite;
+        }
+        @keyframes borderAnim { 0% { background-position: 0%; } 100% { background-position: 300%; } }
 
-        /* Stylish Main Wish (Liquid Gold) */
-        .main-wish-style {
-            font-family: 'Dancing Script', cursive;
-            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4));
-        }
-
-        /* Spinning Colorful Button Border */
-        .btn-premium {
-            position: relative; padding: 16px 40px; background: #fff; color: #000;
-            font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
-            border-radius: 50px; overflow: hidden; transition: 0.3s;
-        }
-        .btn-premium::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(var(--pink), var(--cyan), var(--gold), var(--pink));
-            animation: spin 3s linear infinite; z-index: -1;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
+        /* Restored Card Geometry */
         .perspective { perspective: 1200px; }
         .card-inner { transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
+        .card-front, .card-back { 
+            backface-visibility: hidden; position: absolute; inset: 0; 
+            border-radius: 2.5rem; overflow: hidden; 
+        }
         .card-back { 
             transform: rotateY(180deg); background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700);
-            backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2.5rem;
-            display: flex; align-items: center; justify-content: center; padding: 2rem; border: 2px solid white;
+            display: flex; align-items: center; justify-content: center; padding: 2.5rem; border: 2px solid white;
         }
 
         .reels-container { scroll-snap-type: y mandatory; overflow-y: scroll; height: 80vh; scrollbar-width: none; }
+        .reel-item { scroll-snap-align: center; height: 75vh; margin-bottom: 30px; }
     </style>
 </head>
 <body id="body-area">
@@ -72,33 +59,37 @@
     <div id="intro-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center">
         <div id="intro-bg" class="bg-reveal-layer"></div>
         <div id="intro-decor" class="absolute inset-0"></div>
-        <div id="word-container" class="relative z-10 intro-text-style text-4xl px-8 text-center opacity-0 h-32 flex items-center"></div>
-        <div class="p-[3px] rounded-full relative z-[110] mt-10 scale-0 opacity-0" id="btn-container">
-            <button id="start-btn" class="btn-premium">Open My Wish</button>
+        <div id="word-container" class="relative z-10 text-4xl px-8 text-center opacity-0 h-32 flex items-center" style="font-family:'Playfair Display'; font-weight:900; color:var(--pink); text-shadow:0 0 15px rgba(255,255,255,0.5);"></div>
+        <div class="btn-luxe-wrap relative z-[110] mt-10 scale-0 opacity-0" id="btn-container">
+            <button id="start-btn" class="btn-luxe">Open My Wish</button>
         </div>
     </div>
 
     <div id="main-content" class="hidden opacity-0 h-full w-full overflow-y-auto">
         <div id="main-bg" class="bg-reveal-layer fixed"></div>
         <div id="main-decor" class="fixed inset-0 pointer-events-none z-0"></div>
-        
         <button id="music-toggle" class="fixed top-6 right-6 z-[200] bg-white/20 w-14 h-14 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-md">🎵</button>
         <audio id="bg-music" loop playsinline></audio>
 
-        <div class="relative z-10 w-full">
+        <div class="relative z-10 w-full" id="magic-area">
             <section class="h-screen flex flex-col items-center justify-center text-center p-6">
-                <h1 id="bday-title" class="text-7xl mb-4 main-wish-style"></h1>
-                <p id="bday-sub" class="text-white/60 tracking-[0.4em] uppercase text-[9px] font-bold"></p>
+                <h1 id="bday-title" class="text-7xl mb-4" style="font-family:'Dancing Script'; color:var(--gold);"></h1>
+                <p id="bday-sub" class="text-white/60 tracking-[0.4em] uppercase text-[9px]"></p>
             </section>
-
-            <section class="px-6 py-10 perspective"><div id="gallery-grid" class="flex flex-col gap-10"></div></section>
-            <section class="px-6 py-10" id="reels-list" class="reels-container"></section>
-            <footer class="py-24 px-10 text-center bg-black/70 border-t border-white/10"><p id="final-note" class="italic text-white/50"></p></footer>
+            <section class="px-6 py-10 perspective"><div id="gallery-grid" class="flex flex-col gap-12"></div></section>
+            <section class="px-6 py-10 reels-container" id="reels-list"></section>
+            <footer class="py-24 px-10 text-center bg-black/60 border-t border-white/10"><p id="final-note" class="italic text-white/50"></p></footer>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script>
+        // --- Re-integrated Magic Touch ---
+        document.getElementById('body-area').addEventListener('touchstart', (e) => {
+            if (e.target.closest('.card-inner') || e.target.closest('video') || e.target.closest('button')) return;
+            confetti({ particleCount: 15, spread: 40, origin: { x: e.touches[0].clientX/window.innerWidth, y: e.touches[0].clientY/window.innerHeight }, colors: ['#FFD700', '#FF69B4'] });
+        });
+
         function createFlow(id, icons) {
             const container = document.getElementById(id);
             const dirs = ['top', 'bottom', 'left', 'right'];
@@ -112,7 +103,7 @@
                 else if (d === 'bottom') { from = { y: '110vh', x: Math.random()*100+'vw' }; to = { y: -60 }; }
                 else if (d === 'left') { from = { x: -60, y: Math.random()*100+'vh' }; to = { x: '110vw' }; }
                 else { from = { x: '110vw', y: Math.random()*100+'vh' }; to = { x: -60 }; }
-                gsap.fromTo(el, from, { ...to, rotation: 360, duration: 15 + Math.random()*10, repeat: -1, ease: "none", delay: Math.random()*10 });
+                gsap.fromTo(el, from, { ...to, rotation: 360, duration: 15+Math.random()*10, repeat:-1, ease:"none", delay:Math.random()*10 });
             }
         }
 
@@ -137,6 +128,7 @@
                 const mainBg = document.getElementById('main-bg');
                 mainBg.style.backgroundImage = `url(${CONFIG.main.backgroundImages[0]})`;
                 mainBg.classList.add('reveal-active');
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
                 createFlow('main-decor', ['🎂', '🎈', '😊', '⭐', '✉️', '🎉', '🌻', '🌙', '🌷']);
                 gsap.to("#intro-screen", { y: "-100%", duration: 1.2, ease: "expo.inOut", onComplete: () => {
                     document.getElementById('intro-screen').style.display = 'none';
@@ -154,23 +146,20 @@
             const grid = document.getElementById('gallery-grid');
             CONFIG.gallery.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "h-[450px] w-full";
-                card.innerHTML = `<div class="card-inner" onclick="this.classList.toggle('is-flipped'); if(navigator.vibrate) navigator.vibrate(30);">
+                card.className = "h-[480px] w-full";
+                card.innerHTML = `<div class="card-inner" onclick="this.classList.toggle('is-flipped');">
                     <div class="card-front"><img src="${item.image}" class="w-full h-full object-cover">
-                        <div class="absolute bottom-6 right-6 flex flex-col items-center gap-1 animate-bounce">
-                            <div class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[8px] font-bold">Tap to Reveal Surprise</div>
-                            <div class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center border border-white/40">↺</div>
-                        </div>
+                        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-[9px] font-bold text-center">Tap to Reveal Surprise ↺</div>
                     </div>
-                    <div class="card-back"><p class="text-2xl font-['Playfair_Display'] italic text-center text-white">"${item.note}"</p></div>
+                    <div class="card-back"><p class="text-2xl font-['Playfair_Display'] italic text-center">"${item.note}"</p></div>
                 </div>`;
                 grid.appendChild(card);
             });
             const reels = document.getElementById('reels-list');
             CONFIG.videos.forEach(v => {
                 const div = document.createElement('div');
-                div.className = "reel-item w-full rounded-[2.5rem] overflow-hidden bg-black mb-10 shadow-2xl border border-white/10";
-                div.innerHTML = `<video src="${v}" class="w-full h-full object-cover" loop playsinline muted></video>
+                div.className = "reel-item w-full rounded-[2.5rem] overflow-hidden bg-black shadow-2xl border border-white/10";
+                div.innerHTML = `<video src="${v}" class="w-full h-full object-cover bday-video" loop playsinline muted></video>
                                 <div class="absolute top-6 left-6 bg-black/40 px-4 py-2 rounded-full text-[8px] font-bold">SOUND 🔊</div>`;
                 div.onclick = () => {
                     const vid = div.querySelector('video'), music = document.getElementById('bg-music');
@@ -181,6 +170,7 @@
                 };
                 reels.appendChild(div);
             });
+            document.getElementById('music-toggle').onclick = () => { const m = document.getElementById('bg-music'); m.paused ? m.play() : m.pause(); };
         }
     </script>
 </body>
