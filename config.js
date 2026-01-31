@@ -1,25 +1,30 @@
 const CONFIG = {
+    // --- Intro Screen ---
     intro: {
         backgroundImg: "MyImage10.jpg", 
         message: "A special message | for a special person | is just a click away | Happy Birthday! | Let's celebrate!", 
         buttonText: "Open My Wish"
     },
+
+    // --- Main Page ---
     mainPage: {
         backgroundImg: "MyImage1.jpg", 
         birthdayMessage: "Happy Birthday!",
         subMessage: "Wishing you a year full of joy, success, and endless smiles.",
         musicUrl: "Blue.mp3" 
     },
+
+    // --- Content ---
     gallery: [
-        { image: "MyImage1.jpg", note: "A beautiful memory." },
-        { image: "MyImage2.jpg", note: "Captured in time." },
-        { image: "MyImage3.jpg", note: "One for the books." },
-        { image: "MyImage4.jpg", note: "Your special day." },
-        { image: "MyImage5.jpg", note: "Keep smiling." },
-        { image: "MyImage6.jpg", note: "A happy moment." },
-        { image: "MyImage7.jpg", note: "Perfect day." },
-        { image: "MyImage8.jpg", note: "Birthday joy." }
+        { image: "MyImage1.jpg", note: "Add a personalized memory message here!" },
+        { image: "MyImage2.jpg", note: "You can mention a specific date or event." },
+        { image: "MyImage3.jpg", note: "Another beautiful moment captured." },
+        { image: "MyImage4.jpg", note: "Your words make this feel premium." },
+        { image: "MyImage5.jpg", note: "Keep the notes short and sweet." },
+        { image: "MyImage6.jpg", note: "Almost there, one more memory!" },
+        { image: "MyImage7.jpg", note: "This one is my favorite photo!" },
+        { image: "MyImage8.jpg", note: "Ending the gallery with a smile." }
     ],
     videos: ["MyVideo4.mp4"],
-    finalMessage: "Made with ❤️ just for you."
+    finalMessage: "Made with ❤️ just for you. Have the best day ever!"
 };
