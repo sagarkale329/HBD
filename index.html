@@ -14,11 +14,9 @@
     <style>
         body, html { margin: 0; padding: 0; background: #000; color: white; overflow-x: hidden; height: 100%; width: 100%; }
         
-        /* The Super-Layer for Crisp Objects */
         #super-layer { position: fixed; inset: 0; z-index: 999; pointer-events: none; }
         .float-obj { position: absolute; opacity: 0.6; font-size: 30px; filter: none !important; -webkit-filter: none !important; will-change: transform; }
 
-        /* Background Layers */
         #intro-screen { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; background-size: cover; background-position: center; clip-path: inset(0 0 100% 0); transition: clip-path 3s cubic-bezier(0.19, 1, 0.22, 1); }
         .reveal-bg { clip-path: inset(0 0 0 0) !important; }
         .intro-blur { position: absolute; inset: 0; backdrop-filter: blur(6px) brightness(0.6); -webkit-backdrop-filter: blur(6px) brightness(0.6); background: rgba(0,0,0,0.3); z-index: 1; }
@@ -26,23 +24,27 @@
         #main-content { display: none; opacity: 0; width: 100%; height: 100vh; overflow-y: auto; background-size: cover; background-position: center; background-attachment: fixed; transition: background-image 2s ease-in-out; }
         .main-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: -1; }
 
-        /* Typography */
         #word-container { font-family: 'Caveat', cursive; font-size: 3rem; text-align: center; background: linear-gradient(to right, #ff0080, #ff8c00, #40e0d0, #ff0080); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; -webkit-text-stroke: 1px black; animation: flowColors 4s linear infinite; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); min-height: 120px; position: relative; z-index: 10; }
         @keyframes flowColors { 0% { background-position: 0%; } 100% { background-position: 200%; } }
 
-        /* Interactive Title Tilt */
-        #bday-title { transition: transform 0.1s ease-out; font-family: 'Dancing Script'; color: #FFD700; cursor: default; }
+        /* 3D TITLE SYSTEM */
+        .title-3d-wrap { perspective: 1000px; width: 100%; }
+        #bday-title { 
+            font-family: 'Dancing Script'; 
+            color: #FFD700; 
+            display: inline-block;
+            transform-style: preserve-3d;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
 
-        /* Luxe Button */
         .btn-luxe-wrap { padding: 3px; border-radius: 50px; background: linear-gradient(45deg, #FF69B4, #00FFFF, #FFD700); background-size: 300%; animation: borderAnim 4s linear infinite; }
         @keyframes borderAnim { 0% { background-position: 0%; } 100% { background-position: 300%; } }
         .btn-luxe { position: relative; padding: 18px 45px; background: #000; color: #fff; font-weight: 800; border-radius: 50px; border: none; font-size: 14px; }
 
-        /* Gallery Frames */
         .card-inner { transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
         .card-front, .card-back { backface-visibility: hidden; position: absolute; inset: 0; border-radius: 2rem; overflow: hidden; border: 4px solid rgba(255, 255, 255, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700); display: flex; align-items: center; justify-content: center; padding: 2rem; border: 4px solid white; }
+        .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #FF69B4, #764ba2, #FFD700); display: flex; align-items: center; justify-content: center; padding: 2.5rem; border: 4px solid white; }
 
         .reel-item { scroll-snap-align: center; height: 75vh; margin-bottom: 30px; border: 4px solid rgba(255,255,255,0.1); border-radius: 2.5rem; overflow: hidden; position: relative; }
     </style>
@@ -74,7 +76,9 @@
 
         <div class="relative z-10 w-full" id="scroll-wrapper">
             <section class="h-screen flex flex-col items-center justify-center text-center p-6">
-                <h1 id="bday-title" class="text-7xl mb-4"></h1>
+                <div class="title-3d-wrap">
+                    <h1 id="bday-title" class="text-7xl mb-4"></h1>
+                </div>
                 <p id="bday-sub" class="text-white/60 tracking-[0.5em] uppercase text-[9px] font-bold"></p>
             </section>
             
@@ -89,7 +93,6 @@
 
     <script src="config.js"></script>
     <script>
-        // --- Vibration Wrapper ---
         function pulse() { if (navigator.vibrate) navigator.vibrate(40); }
 
         document.getElementById('body-area').addEventListener('touchstart', (e) => {
@@ -153,12 +156,10 @@
                 pulse();
                 const music = document.getElementById('bg-music');
                 music.src = CONFIG.mainPage.musicUrl; music.play();
-                
                 const main = document.getElementById('main-content');
                 main.style.backgroundImage = `url(${CONFIG.mainPage.backgroundImages[0]})`;
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
                 createFlow(['🎂', '🎈', '😊', '⭐', '✉️', '🎉', '🌻', '🌙', '🌷']);
-                
                 gsap.to("#intro-screen", { y: "-100%", duration: 1.2, ease: "expo.inOut", onComplete: () => {
                     document.getElementById('intro-screen').style.display = 'none';
                     main.style.display = 'block';
@@ -174,14 +175,18 @@
             const bgs = CONFIG.mainPage.backgroundImages;
             if(bgs.length > 1) { setInterval(() => { idx = (idx + 1) % bgs.length; main.style.backgroundImage = `url(${bgs[idx]})`; }, 6000); }
 
-            document.getElementById('bday-title').innerText = CONFIG.mainPage.birthdayMessage;
+            const title = document.getElementById('bday-title');
+            title.innerText = CONFIG.mainPage.birthdayMessage;
             document.getElementById('bday-sub').innerText = CONFIG.mainPage.subMessage;
             document.getElementById('final-note').innerText = CONFIG.finalMessage;
             
-            // --- Interactive Title Tilt ---
+            // --- 3D FLOAT & TILT LOGIC ---
+            gsap.to(title, { y: -15, duration: 2, repeat: -1, yoyo: true, ease: "sine.inOut" });
+
             main.addEventListener('scroll', () => {
-                const move = Math.sin(main.scrollTop / 200) * 10;
-                document.getElementById('bday-title').style.transform = `perspective(1000px) rotateX(${move}deg)`;
+                const scrollPos = main.scrollTop;
+                const tilt = Math.min(scrollPos / 20, 25);
+                gsap.to(title, { rotateX: tilt, duration: 0.1 });
             });
 
             // --- Confetti Final Strike ---
