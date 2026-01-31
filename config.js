@@ -34,7 +34,7 @@ const CONFIG = {
     ],
     videos: [
         "MyVideo4.mp4",
-        "MyVideo4.mp4",
+        "MyVideo5.mp4",
         "MyVideo4.mp4",
         "MyVideo4.mp4"
     ],
