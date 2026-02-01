@@ -27,8 +27,8 @@ const CONFIG = {
         { image: "pic1.png", note: "I hope you know, how wonderfully weird 🤪 you are!" },
         { image: "pic2.png", note: "Just stop overthinking, and believe in yourself 💪 💯" },
         { image: "pic3.png", note: "Never stop flexing those dimple, just keep smiling 😇 ... Always 🤘" },
-        { image: "pic4.png", note: "Effortlessly gorgeous 👸" },
-        { image: "pic5.png", note: "Adventurous" },
+        { image: "pic4.png", note: "How could someone be so Effortlessly Gorgeous 👸" },
+        { image: "pic5.png", note: "A girl who loves adventures more than make up, that's unique 🙌" },
         { image: "pic6.png", note: "Never try to hide those cute Rabbit 🐰 teeths 🙃" },
         { image: "pic7.png", note: "Might have told you before, this is my favourite picture of you 😁" },
         { image: "pic8.png", note: "Please put your health before anything else and take care of yourself 💆" }
