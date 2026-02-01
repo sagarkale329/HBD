@@ -34,10 +34,10 @@ const CONFIG = {
         { image: "pic8.png", note: "Please put your health before anything else and take care of yourself 💆" }
     ],
     videos: [
-        "MyVideo4.mp4",
-        "MyVideo5.mp4",
-        "MyVideo4.mp4",
-        "MyVideo4.mp4"
+        "https://res.cloudinary.com/ds3esln7g/video/upload/v1769906047/video5_tqakh0.mp4",
+        "https://res.cloudinary.com/ds3esln7g/video/upload/v1769906325/video2_xfenn5.mp4",
+        "https://res.cloudinary.com/ds3esln7g/video/upload/v1769906010/video3_hsdhtx.mp4",
+        "https://res.cloudinary.com/ds3esln7g/video/upload/v1769906034/video4_akg2gn.mp4"
     ],
     finalMessage: "Boht ho gayi jhooth muth ki tarif ab aur nhi kar paunga 😬, so bybye & Have the best day ever 🤘"
 };
